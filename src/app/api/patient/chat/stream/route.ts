@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
   const systemPrompt = getAgentSystemPrompt(agent, intervention);
 
   const stream = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt },
       ...chatHistory,
@@ -165,7 +165,7 @@ async function saveAIMessage(
     intervention_id: interventionId,
     role: "ai_agent",
     content,
-    metadata: { agent_type: agent, model: "gpt-4o" },
+    metadata: { agent_type: agent, model: "gpt-4o-mini" },
     day_offset: dayOffset,
   });
 }
