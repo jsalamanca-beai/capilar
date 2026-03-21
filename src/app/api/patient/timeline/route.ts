@@ -20,29 +20,33 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
 
-  const currentDay = intervention.current_day;
+  // Allow querying tasks for a specific day (for phase expansion)
+  const url = new URL(request.url);
+  const queryDay = url.searchParams.get("day");
+  const targetDay = queryDay !== null ? parseInt(queryDay) : intervention.current_day;
 
-  // Get tasks for current day
+  // Get all tasks that are active for the target day
   const { data: tasks } = await supabase
     .from("cap_protocol_task_items")
     .select("*")
     .eq("protocol_id", intervention.protocol_id)
     .eq("is_active", true)
-    .lte("day_offset", currentDay)
-    .or(`day_offset_end.gte.${currentDay},day_offset_end.is.null`)
+    .lte("day_offset", targetDay)
+    .or(`day_offset_end.gte.${targetDay},day_offset_end.is.null`)
     .order("sort_order");
 
-  // Get completions for today
+  // Get completions for the target day
   const { data: completions } = await supabase
     .from("cap_task_completions")
     .select("*")
     .eq("intervention_id", interventionId)
-    .eq("day_offset", currentDay);
+    .eq("day_offset", targetDay);
 
   return NextResponse.json({
     intervention,
     tasks: tasks || [],
     completions: completions || [],
-    currentDay,
+    currentDay: intervention.current_day,
+    targetDay,
   });
 }
