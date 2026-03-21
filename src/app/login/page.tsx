@@ -128,7 +128,7 @@ function LoginForm() {
         </p>
 
         {/* Code input boxes */}
-        <div className="flex justify-center gap-2 mb-6" onPaste={handlePaste}>
+        <div className="flex justify-center gap-1.5 sm:gap-2 mb-6 px-2" onPaste={handlePaste}>
           {code.map((digit, i) => (
             <input
               key={i}
@@ -139,11 +139,11 @@ function LoginForm() {
               value={digit}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className={`w-10 h-12 text-center text-lg font-mono rounded border
+              className={`w-9 h-11 sm:w-10 sm:h-12 text-center text-base sm:text-lg font-mono rounded border
                 ${error ? "border-danger" : "border-gold-border"}
                 bg-bg-card text-text-white focus:border-gold focus:outline-none
-                focus:ring-1 focus:ring-gold transition-colors
-                ${i === 3 ? "ml-3" : ""}`}
+                focus:ring-1 focus:ring-gold transition-colors flex-shrink-0
+                ${i === 3 ? "ml-2 sm:ml-3" : ""}`}
               disabled={loading}
               autoFocus={i === 0}
             />
