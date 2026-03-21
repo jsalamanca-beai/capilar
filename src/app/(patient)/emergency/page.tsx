@@ -1,6 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 export default function EmergencyPage() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/");
+  };
   return (
     <div className="max-w-lg mx-auto px-4 py-4">
       <h1 className="text-gold text-xs uppercase tracking-[3px] font-light mb-1">
@@ -75,6 +83,14 @@ export default function EmergencyPage() {
           ))}
         </ul>
       </div>
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="w-full card p-4 mt-4 text-center text-text-muted text-sm hover:text-danger hover:border-danger-border transition-colors"
+      >
+        Cerrar sesion
+      </button>
 
       <p className="text-text-muted text-[10px] text-center mt-6">
         M&M Mundo Capilar &mdash; CIF: B16867491 &mdash; Madrid

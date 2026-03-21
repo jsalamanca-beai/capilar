@@ -56,6 +56,12 @@ body {
 }
 
 /* ====== UTILITY CLASSES ====== */
+
+/* Logo sobre fondo oscuro: invertir colores */
+.logo-dark {
+  filter: invert(1) brightness(1.8) contrast(0.9);
+}
+
 .gold-glow {
   box-shadow: 0 0 8px rgba(231, 184, 97, 0.4);
 }

@@ -71,7 +71,7 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push("/");
+        router.push("/dashboard");
       } else {
         setError(data.error || "Error al validar el codigo.");
         setCode(["", "", "", "", "", "", "", ""]);
@@ -92,7 +92,7 @@ export default function LoginPage() {
           alt="Capilex Madrid"
           width={180}
           height={96}
-          className="mx-auto mb-10"
+          className="mx-auto mb-10 logo-dark"
           priority
         />
 

@@ -23,7 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="w-56 bg-black border-r border-[#1a1a1a] flex flex-col flex-shrink-0 hidden md:flex">
         <div className="p-4 border-b border-[#1a1a1a]">
-          <Image src="/logo-capilex.png" alt="Capilex" width={120} height={64} className="opacity-80" />
+          <Image src="/logo-capilex.png" alt="Capilex" width={120} height={64} className="opacity-80 logo-dark" />
           <p className="text-[9px] text-gold-dim uppercase tracking-widest mt-2">Panel Clinica</p>
         </div>
         <nav className="flex-1 py-3">
@@ -45,16 +45,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
-        <div className="p-4 border-t border-[#1a1a1a]">
-          <Link href="/" className="text-text-muted text-xs hover:text-gold transition-colors">
+        <div className="p-4 border-t border-[#1a1a1a] space-y-2">
+          <Link href="/" className="text-text-muted text-xs hover:text-gold transition-colors block">
             ← Volver a la app
           </Link>
+          <button
+            onClick={async () => {
+              await fetch("/api/auth/logout", { method: "POST" });
+              localStorage.removeItem("staff_user");
+              window.location.href = "/admin/login";
+            }}
+            className="text-text-muted text-xs hover:text-danger transition-colors"
+          >
+            Cerrar sesion
+          </button>
         </div>
       </aside>
 
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-black border-b border-[#1a1a1a] px-4 py-2 flex items-center justify-between">
-        <Image src="/logo-capilex.png" alt="Capilex" width={80} height={43} />
+        <Image src="/logo-capilex.png" alt="Capilex" width={80} height={43} className="logo-dark" />
         <div className="flex gap-1">
           {NAV_ITEMS.map((item) => (
             <Link

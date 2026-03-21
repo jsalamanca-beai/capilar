@@ -28,7 +28,7 @@ export default function PatientHeader() {
             alt="Capilex"
             width={80}
             height={43}
-            className="opacity-80"
+            className="opacity-80 logo-dark"
           />
         </div>
         <div className="text-right">

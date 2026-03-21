@@ -6,7 +6,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Patient routes: validate JWT cookie
-  if (pathname.startsWith("/checklist") ||
+  if (pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/checklist") ||
       pathname.startsWith("/photos") ||
       pathname.startsWith("/chat") ||
       pathname.startsWith("/medications") ||
@@ -56,6 +57,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/dashboard/:path*",
     "/checklist/:path*",
     "/photos/:path*",
     "/chat/:path*",
