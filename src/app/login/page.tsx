@@ -1,15 +1,39 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-bg">
+        <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [code, setCode] = useState(["", "", "", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Auto-fill from ?code= URL parameter
+  useEffect(() => {
+    const urlCode = searchParams.get("code");
+    if (urlCode && urlCode.length === 8) {
+      const chars = urlCode.toUpperCase().split("");
+      setCode(chars);
+      handleSubmit(urlCode.toUpperCase());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleChange = (index: number, value: string) => {
     if (!/^[a-zA-Z0-9]?$/.test(value)) return;
