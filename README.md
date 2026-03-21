@@ -1,36 +1,189 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capilex Patient App
 
-## Getting Started
+Aplicacion de acompanamiento al paciente de trasplante capilar para **Clinica Capilex Madrid**.
 
-First, run the development server:
+Digitaliza todo el proceso pre y postoperatorio: timeline interactivo, checklist diario, subida de fotos con analisis IA (GPT-4o Vision), chatbot con 3 agentes expertos, alertas proactivas via Telegram, y panel de administracion para la clinica.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Stack
+
+| Componente | Tecnologia |
+|---|---|
+| Frontend | Next.js 16 + Tailwind v4 + TypeScript |
+| Backend/DB | Supabase (PostgreSQL + Auth + Storage) |
+| IA Chat | OpenAI GPT-4o-mini (3 agentes + router) |
+| IA Vision | OpenAI GPT-4o (analisis fotos cuero cabelludo) |
+| Notificaciones | Telegram Bot API |
+| Hosting | Vercel |
+
+## Funcionalidades
+
+### App Paciente
+- **Login con codigo unico** de 8 caracteres (sin registro)
+- **Onboarding** de 5 pantallas la primera vez
+- **Dashboard** con contador de dias, mensajes motivacionales por fase, accesos rapidos
+- **Timeline interactivo** — click en cada fase muestra tareas y restricciones
+- **Checklist diario** — tareas del dia con checkboxes, progreso, celebracion al 100%
+- **Tracker medicacion** — 4 medicamentos con dosis, frecuencia, estado activo/completado
+- **Lista de compras** — productos necesarios con donde comprar (farmacia, Amazon...)
+- **Subida de fotos** — camara/galeria, selector de zona, compresion, analisis IA con 6 parametros
+- **Galeria de fotos** — thumbnails, modal con zoom, scores IA, estado revision clinica
+- **Chat IA 24/7** — 3 agentes expertos (quirurgico, experiencia, riesgos), routing automatico, streaming
+- **Escalado a humano** — si la IA detecta emergencia, notifica al equipo via Telegram
+- **Contacto emergencia** — "Tu equipo de apoyo" con chat IA, telefono clinica, sintomas de alarma
+
+### Panel Admin (Clinica)
+- **Login staff** con Supabase Auth
+- **Dashboard** — fotos sin revisar, escalados pendientes, cirugias esta semana
+- **Lista pacientes** — filtros (pre-op/post-op/criticos), badges de pendientes
+- **Generador codigos** — crear paciente + intervencion + codigo + link copiable
+- **Detalle paciente** — info, timeline, codigo acceso, contacto
+- **Revision fotos** — galeria con analisis IA al lado, notas del equipo, marcar revisada
+- **Chat admin** — ver historial con indicador de agente IA, responder como "Equipo Capilex"
+
+### Integraciones
+- **Telegram Bot** — 6 tipos de alerta (foto subida, escalado, plazos pre-op, inactividad, primer acceso, resumen diario)
+- **RGPD** — consentimientos, logs auditoria, solicitudes supresion datos
+
+## Estructura del proyecto
+
+```
+capilex-patient-app/
+├── src/
+│   ├── app/
+│   │   ├── (patient)/          # Rutas paciente (con layout + bottom nav)
+│   │   │   ├── dashboard/      # Timeline + contador dias
+│   │   │   ├── checklist/      # Tareas diarias
+│   │   │   ├── photos/         # Galeria + upload con IA
+│   │   │   ├── chat/           # Chat con agentes IA
+│   │   │   ├── medications/    # Tracker medicacion
+│   │   │   ├── shopping/       # Lista compras
+│   │   │   └── emergency/      # Contacto clinica
+│   │   ├── admin/              # Panel administracion
+│   │   │   ├── dashboard/      # Alertas y stats
+│   │   │   ├── patients/       # Lista + detalle + fotos + chat
+│   │   │   ├── codes/          # Generador codigos acceso
+│   │   │   └── settings/       # Configuracion
+│   │   └── api/
+│   │       ├── auth/           # Login paciente (JWT) + staff (Supabase Auth) + logout
+│   │       ├── patient/        # Profile, timeline, tasks, photos, chat
+│   │       ├── admin/          # Patients, alerts, photos review, chat reply
+│   │       ├── ai/             # Photo analysis, chat agent router
+│   │       ├── cron/           # Daily summary, notifications
+│   │       └── telegram/       # Test endpoint
+│   ├── components/
+│   │   ├── patient/            # DayCounter, TimelineView, PhotoCapture, OnboardingOverlay...
+│   │   └── shared/             # BottomNav
+│   └── lib/
+│       ├── auth/               # JWT sign/verify (jose), rate limiter
+│       ├── openai/             # Client, prompts (surgery, experience, risk, photo, router)
+│       ├── supabase/           # Browser + server clients
+│       ├── telegram/           # Bot con 6 tipos de notificacion
+│       ├── timeline/           # Compute phase, day utils
+│       ├── content/            # Frases motivacionales por fase
+│       ├── constants/          # Medications, shopping list
+│       ├── hooks/              # usePatient context
+│       └── types/              # Database types (todas las tablas)
+├── supabase/
+│   ├── migrations/             # 3 ficheros SQL (schema + seeds + notifications)
+│   └── EJECUTAR_EN_SUPABASE.sql  # Script todo-en-uno para setup
+├── docs/                       # Documentacion HTML con estilos Capilex
+└── public/
+    └── logo-capilex.png
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Base de datos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+19 tablas con prefijo `cap_` + 1 vista. Modelo intervencion-centrico (1 paciente = N intervenciones).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Grupo | Tablas |
+|---|---|
+| Base | `cap_clinics`, `cap_patients`, `cap_staff` |
+| Intervenciones | `cap_interventions`, `cap_care_protocols` |
+| Protocolo (templates) | `cap_protocol_task_items`, `cap_protocol_medication_items`, `cap_protocol_shopping_items` |
+| Tracking (instancias) | `cap_task_completions`, `cap_medication_logs`, `cap_shopping_list_checks` |
+| Comunicacion | `cap_chat_messages`, `cap_photos`, `cap_notifications`, `cap_notification_templates` |
+| Calendario | `cap_follow_up_appointments`, `cap_clinic_calendar` |
+| RGPD | `cap_patient_consents`, `cap_data_access_logs`, `cap_data_deletion_requests` |
+| Vista | `cap_intervention_timeline` (calcula `current_day` automaticamente) |
 
-## Learn More
+## Agentes IA
 
-To learn more about Next.js, take a look at the following resources:
+| Agente | Rol | Modelo |
+|---|---|---|
+| Router | Clasifica mensaje en SURGERY / EXPERIENCE / RISK / ESCALATE | gpt-4o-mini |
+| Experto Quirurgico | Protocolo medico, lavados, medicacion, sintomas normales vs alarma | gpt-4o-mini |
+| Experiencia Paciente | Soporte emocional, shedding, cronologia resultados, consejos | gpt-4o-mini |
+| Prevencion Riesgos | Restricciones por dia, "puedo hacer X?", interacciones medicamentosas | gpt-4o-mini |
+| Analisis Fotos | 6 parametros (costras, enrojecimiento, infeccion, injertos, donante, progreso) | gpt-4o |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Setup rapido
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 1. Clonar e instalar
+```bash
+git clone https://github.com/jsalamanca-beai/capilar.git
+cd capilar
+npm install
+```
 
-## Deploy on Vercel
+### 2. Configurar .env.local
+```bash
+cp .env.example .env.local
+# Editar con tus claves:
+# NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+# OPENAI_API_KEY, JWT_SECRET, CRON_SECRET
+# (Opcional) TELEGRAM_BOT_TOKEN, TELEGRAM_CLINIC_CHAT_ID
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 3. Crear tablas en Supabase
+Ejecutar `supabase/EJECUTAR_EN_SUPABASE.sql` en el SQL Editor de Supabase.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Crear bucket de fotos
+```sql
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('patient-photos', 'patient-photos', false, 10485760, ARRAY['image/jpeg','image/png','image/webp'])
+ON CONFLICT (id) DO NOTHING;
+```
+
+### 5. Arrancar
+```bash
+npm run dev  # http://localhost:3043
+```
+
+### 6. Probar
+- **Paciente:** http://localhost:3043/login → TEST1234
+- **Admin:** http://localhost:3043/admin/login → admin@capilexmadrid.es / Capilex2026!
+
+## Documentacion
+
+Toda la documentacion esta en `/docs/` como ficheros HTML autocontenidos con estilos Capilex (negro + dorado).
+
+| Documento | Contenido |
+|---|---|
+| [deploy-vercel.html](docs/deploy-vercel.html) | Guia deploy paso a paso (Supabase + Vercel) |
+| [setup-telegram.html](docs/setup-telegram.html) | Configurar bot Telegram en 5 pasos |
+| [historias-de-usuario.html](docs/historias-de-usuario.html) | 24 user stories con estado (92% completadas) |
+| [casos-de-test.html](docs/casos-de-test.html) | 32 test cases manuales |
+| [costes-telegram-whatsapp.html](docs/costes-telegram-whatsapp.html) | Modelo costes comunicacion |
+| [analisis-teams-telegram.html](docs/analisis-teams-telegram.html) | Comparativa Teams vs Telegram |
+| [mejoras-ux-product.html](docs/mejoras-ux-product.html) | 21 mejoras priorizadas por agentes UX + PO |
+
+## Costes estimados
+
+| Volumen | Coste mensual |
+|---|---|
+| 10-20 pacientes | 6-45 EUR/mes |
+| 50 pacientes | ~144 EUR/mes |
+| Coste por paciente | ~1-2 EUR (todo incluido) |
+
+## Estado
+
+- **66 ficheros fuente**, ~5.700 lineas TypeScript
+- **19 tablas** PostgreSQL con seed del protocolo Capilex
+- **24 historias de usuario**, 22 completadas (92%)
+- **32 casos de test** documentados
+- **8 documentos** HTML de referencia
+- **Puerto local:** 3043
+
+---
+
+Clinica Capilex Madrid — M&M Mundo Capilar — CIF: B16867491
