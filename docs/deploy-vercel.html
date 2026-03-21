@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deploy en Vercel - Capilex Patient App</title>
+    <style>
+        :root {
+            --gold: rgb(231, 184, 97); --gold-light: rgba(231, 184, 97, 0.15); --gold-subtle: rgba(231, 184, 97, 0.08);
+            --gold-border: rgba(231, 184, 97, 0.25); --gold-dim: rgba(231, 184, 97, 0.5);
+            --bg: #0a0a0a; --bg-card: #111111; --text: #d4d4d4; --text-muted: #888888; --white: #ffffff;
+            --success: #27ae60; --success-bg: rgba(39, 174, 96, 0.1); --success-border: rgba(39, 174, 96, 0.25);
+            --danger: #c0392b; --danger-bg: rgba(192, 57, 43, 0.1); --danger-border: rgba(192, 57, 43, 0.25);
+            --blue: #2980b9; --blue-bg: rgba(41, 128, 185, 0.1); --blue-border: rgba(41, 128, 185, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .header { background: #000; padding: 35px 20px 25px; text-align: center; border-bottom: 2px solid var(--gold); }
+        .header h1 { font-size: 1.5em; color: var(--gold); letter-spacing: 3px; font-weight: 300; text-transform: uppercase; margin-bottom: 4px; }
+        .header p { color: var(--text-muted); font-size: 0.88em; }
+        .container { max-width: 780px; margin: 0 auto; padding: 20px 16px; }
+        .divider { text-align: center; padding: 24px 0 12px; position: relative; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold-border), transparent); }
+        .divider span { background: var(--bg); padding: 0 16px; position: relative; font-size: 0.75em; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; font-weight: 300; }
+
+        .step-block { margin-bottom: 20px; border-radius: 8px; overflow: hidden; background: var(--bg-card); border: 1px solid #1a1a1a; }
+        .step-header { padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1a1a1a; background: linear-gradient(135deg, #111, #0d0d0d); }
+        .step-num { width: 34px; height: 34px; border-radius: 50%; background: var(--gold-light); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 0.95em; font-weight: 600; flex-shrink: 0; }
+        .step-header h2 { font-size: 1em; color: var(--gold); font-weight: 400; }
+        .step-header small { color: var(--text-muted); display: block; font-size: 0.75em; }
+        .step-header .time { margin-left: auto; font-size: 0.72em; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 2px 8px; border-radius: 3px; }
+        .step-body { padding: 8px 18px 18px; }
+        .step-body p { margin: 6px 0; font-size: 0.88em; }
+        .code-block { background: #0d0d0d; border: 1px solid #222; border-radius: 6px; padding: 12px 14px; margin: 8px 0; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.82em; overflow-x: auto; color: var(--gold); word-break: break-all; }
+        .code-block .comment { color: var(--text-muted); }
+        .code-block .val { color: var(--success); }
+        .highlight { padding: 12px 16px; border-radius: 6px; margin: 8px 0; display: flex; align-items: flex-start; gap: 10px; font-size: 0.85em; }
+        .highlight-icon { font-size: 1.1em; flex-shrink: 0; }
+        .highlight-success { background: var(--success-bg); border: 1px solid var(--success-border); }
+        .highlight-success strong { color: var(--success); }
+        .highlight-gold { background: var(--gold-subtle); border: 1px solid var(--gold-border); }
+        .highlight-gold strong { color: var(--gold); }
+        .highlight-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); }
+        .highlight-danger strong { color: var(--danger); }
+        .highlight-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); }
+        .highlight-blue strong { color: var(--blue); }
+
+        .env-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; margin: 8px 0; }
+        .env-table th { text-align: left; padding: 6px 12px; color: var(--gold); font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; font-weight: 400; }
+        .env-table td { padding: 9px 12px; background: rgba(255,255,255,0.03); font-size: 0.82em; font-family: 'Consolas', monospace; }
+        .env-table tr td:first-child { border-radius: 6px 0 0 6px; border-left: 2px solid var(--gold-border); color: var(--white); }
+        .env-table tr td:last-child { border-radius: 0 6px 6px 0; }
+        .env-table .required { color: var(--danger); font-size: 0.7em; text-transform: uppercase; }
+        .env-table .optional { color: var(--text-muted); font-size: 0.7em; text-transform: uppercase; }
+
+        .checklist { list-style: none; padding: 0; margin: 8px 0; }
+        .checklist li { padding: 5px 0 5px 26px; position: relative; font-size: 0.86em; }
+        .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--gold); font-size: 1.1em; }
+
+        .img-placeholder { background: #1a1a1a; border: 1px dashed #333; border-radius: 6px; padding: 30px 16px; text-align: center; color: var(--text-muted); font-size: 0.82em; margin: 8px 0; }
+
+        .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.75em; margin-top: 20px; }
+        @media (max-width: 600px) { .header h1 { font-size: 1.2em; } .code-block { font-size: 0.76em; padding: 10px; } .env-table { display: block; overflow-x: auto; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Deploy en Vercel</h1>
+    <p>Guia paso a paso para poner la app en produccion</p>
+</div>
+
+<div class="container">
+
+    <div class="highlight highlight-gold">
+        <div class="highlight-icon">⏱️</div>
+        <div><strong>Tiempo total: ~15 minutos.</strong> Necesitas: cuenta Vercel (gratis), cuenta Supabase (gratis), API key de OpenAI. El repo ya esta en GitHub.</div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Prerequisitos</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">0</div>
+            <div>
+                <h2>Antes de empezar</h2>
+                <small>Lo que necesitas tener</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <ul class="checklist">
+                <li>Cuenta en <strong>GitHub</strong> con acceso al repo <code>jsalamanca-beai/capilar</code></li>
+                <li>Cuenta en <strong>Vercel</strong> (crear en vercel.com si no tienes &mdash; gratis con GitHub)</li>
+                <li>Cuenta en <strong>Supabase</strong> (crear en supabase.com &mdash; gratis)</li>
+                <li>API key de <strong>OpenAI</strong> (platform.openai.com &mdash; de pago, ~5 EUR para empezar)</li>
+                <li>(Opcional) Token de <strong>Telegram bot</strong> (gratis, ver docs/setup-telegram.html)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Paso 1: Supabase</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">1</div>
+            <div>
+                <h2>Crear proyecto en Supabase</h2>
+                <small>Base de datos + almacenamiento de fotos</small>
+            </div>
+            <div class="time">~5 min</div>
+        </div>
+        <div class="step-body">
+            <p><strong>1a.</strong> Ve a <code>supabase.com/dashboard</code> → <strong>New Project</strong></p>
+            <ul class="checklist">
+                <li>Nombre: <strong>capilex-patient-app</strong></li>
+                <li>Region: <strong>West EU (Ireland)</strong> (la mas cercana a Madrid)</li>
+                <li>Password: genera una segura y guardala</li>
+            </ul>
+
+            <p><strong>1b.</strong> Espera ~2 minutos a que se cree. Luego ve a <strong>Settings → API</strong> y copia:</p>
+            <div class="code-block">
+                <span class="comment"># Lo encuentras en Settings → API</span><br>
+                NEXT_PUBLIC_SUPABASE_URL = <span class="val">https://xxxxxxxxxxxx.supabase.co</span><br>
+                NEXT_PUBLIC_SUPABASE_ANON_KEY = <span class="val">eyJhbGciOiJIUz...</span><br><br>
+                <span class="comment"># Lo encuentras en Settings → API → service_role (mostrar)</span><br>
+                SUPABASE_SERVICE_ROLE_KEY = <span class="val">eyJhbGciOiJIUz...</span>
+            </div>
+
+            <div class="highlight highlight-danger">
+                <div class="highlight-icon">⚠️</div>
+                <div><strong>NUNCA compartas el service_role key.</strong> Es la clave con permisos totales sobre la BD. Solo va en variables de entorno del servidor (Vercel), nunca en el codigo.</div>
+            </div>
+
+            <p><strong>1c.</strong> Ejecutar las migraciones SQL. Ve a <strong>SQL Editor</strong> en Supabase y ejecuta en orden:</p>
+            <ol class="checklist" style="counter-reset: none;">
+                <li>Pega y ejecuta el contenido de <code>supabase/migrations/001_initial_schema.sql</code></li>
+                <li>Pega y ejecuta <code>supabase/migrations/002_seed_protocol.sql</code></li>
+                <li>Pega y ejecuta <code>supabase/migrations/003_seed_notification_templates.sql</code></li>
+            </ol>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">✅</div>
+                <div><strong>Verificacion:</strong> En Table Editor deberias ver 20 tablas creadas (clinics, patients, interventions, etc.) y datos de seed en care_protocols, protocol_task_items, protocol_medication_items y protocol_shopping_items.</div>
+            </div>
+
+            <p><strong>1d.</strong> Crear el bucket de almacenamiento de fotos. Ve a <strong>Storage</strong> → <strong>New Bucket</strong>:</p>
+            <ul class="checklist">
+                <li>Nombre: <strong>patient-photos</strong></li>
+                <li>Public: <strong>NO</strong> (privado)</li>
+                <li>File size limit: <strong>10 MB</strong></li>
+                <li>Allowed MIME types: <strong>image/jpeg, image/png, image/webp</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Paso 2: Crear paciente de prueba</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">2</div>
+            <div>
+                <h2>Insertar datos de prueba</h2>
+                <small>Un paciente con una intervencion para testear</small>
+            </div>
+            <div class="time">~2 min</div>
+        </div>
+        <div class="step-body">
+            <p>En el <strong>SQL Editor</strong> de Supabase, ejecuta:</p>
+            <div class="code-block">
+<span class="comment">-- Paciente de prueba</span>
+INSERT INTO patients (id, clinic_id, first_name, last_name, email, phone)
+VALUES (
+  'a0000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000001',
+  'Jose', 'Salamanca',
+  'jose@test.com', '+34600000000'
+);
+
+<span class="comment">-- Intervencion con codigo de acceso</span>
+<span class="comment">-- Cambia la fecha para simular el dia postoperatorio que quieras</span>
+INSERT INTO interventions (
+  patient_id, protocol_id, clinic_id,
+  access_code, surgery_date, status,
+  grafts_count, technique, surgeon_name
+) VALUES (
+  'a0000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000010',
+  '00000000-0000-0000-0000-000000000001',
+  <span class="val">'TEST1234'</span>,
+  <span class="val">CURRENT_DATE - INTERVAL '5 days'</span>,  <span class="comment">-- Simula dia 5 postop</span>
+  'post_op',
+  2500, 'FUE', 'Dr. Martinez'
+);
+            </div>
+
+            <div class="highlight highlight-gold">
+                <div class="highlight-icon">💡</div>
+                <div><strong>Tip:</strong> Cambia <code>CURRENT_DATE - INTERVAL '5 days'</code> para simular diferentes dias. Usa <code>+ INTERVAL '3 days'</code> para simular pre-operatorio (cirugia en 3 dias).</div>
+            </div>
+
+            <p>Codigo de acceso para entrar: <strong>TEST1234</strong></p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Paso 3: Deploy en Vercel</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">3</div>
+            <div>
+                <h2>Importar proyecto en Vercel</h2>
+                <small>Conectar GitHub → Vercel</small>
+            </div>
+            <div class="time">~3 min</div>
+        </div>
+        <div class="step-body">
+            <p><strong>3a.</strong> Ve a <code>vercel.com/new</code></p>
+            <p><strong>3b.</strong> Selecciona <strong>"Import Git Repository"</strong></p>
+            <p><strong>3c.</strong> Busca y selecciona el repo <strong>jsalamanca-beai/capilar</strong></p>
+            <p><strong>3d.</strong> Configuracion del proyecto:</p>
+            <ul class="checklist">
+                <li>Framework Preset: <strong>Next.js</strong> (se detecta automaticamente)</li>
+                <li>Root Directory: <strong>./</strong> (raiz)</li>
+                <li>Build Command: dejar por defecto (<code>next build</code>)</li>
+                <li>Output Directory: dejar por defecto</li>
+            </ul>
+
+            <p><strong>3e.</strong> En la seccion <strong>"Environment Variables"</strong>, anade TODAS estas:</p>
+
+            <table class="env-table">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Valor</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>NEXT_PUBLIC_SUPABASE_URL</td>
+                        <td>https://xxxx.supabase.co</td>
+                        <td><span class="required">Obligatoria</span></td>
+                    </tr>
+                    <tr>
+                        <td>NEXT_PUBLIC_SUPABASE_ANON_KEY</td>
+                        <td>eyJhbGci...</td>
+                        <td><span class="required">Obligatoria</span></td>
+                    </tr>
+                    <tr>
+                        <td>SUPABASE_SERVICE_ROLE_KEY</td>
+                        <td>eyJhbGci...</td>
+                        <td><span class="required">Obligatoria</span></td>
+                    </tr>
+                    <tr>
+                        <td>OPENAI_API_KEY</td>
+                        <td>sk-proj-...</td>
+                        <td><span class="required">Obligatoria</span></td>
+                    </tr>
+                    <tr>
+                        <td>JWT_SECRET</td>
+                        <td>(genera 32+ chars aleatorios)</td>
+                        <td><span class="required">Obligatoria</span></td>
+                    </tr>
+                    <tr>
+                        <td>CRON_SECRET</td>
+                        <td>(genera 32+ chars aleatorios)</td>
+                        <td><span class="required">Obligatoria</span></td>
+                    </tr>
+                    <tr>
+                        <td>TELEGRAM_BOT_TOKEN</td>
+                        <td>7123456789:AAH...</td>
+                        <td><span class="optional">Opcional</span></td>
+                    </tr>
+                    <tr>
+                        <td>TELEGRAM_CLINIC_CHAT_ID</td>
+                        <td>-1001234567890</td>
+                        <td><span class="optional">Opcional</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight highlight-blue">
+                <div class="highlight-icon">🔑</div>
+                <div><strong>Generar JWT_SECRET y CRON_SECRET:</strong> Abre la terminal y ejecuta:<br>
+                <code style="color:var(--gold)">node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code><br>
+                Ejecutalo 2 veces (una para cada secret).</div>
+            </div>
+
+            <p><strong>3f.</strong> Pulsa <strong>"Deploy"</strong> y espera ~2 minutos.</p>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">✅</div>
+                <div><strong>Si el deploy es exitoso</strong>, Vercel te dara una URL tipo <code>capilar-xxxx.vercel.app</code>. Esa es tu app en produccion.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Paso 4: Dominio personalizado</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">4</div>
+            <div>
+                <h2>Configurar dominio (opcional)</h2>
+                <small>app.capilexmadrid.es en vez de xxxx.vercel.app</small>
+            </div>
+            <div class="time">~5 min</div>
+        </div>
+        <div class="step-body">
+            <p><strong>4a.</strong> En Vercel, ve a tu proyecto → <strong>Settings → Domains</strong></p>
+            <p><strong>4b.</strong> Escribe: <code>app.capilexmadrid.es</code> y pulsa Add</p>
+            <p><strong>4c.</strong> Vercel te mostrara un registro DNS que debes crear:</p>
+
+            <div class="code-block">
+                <span class="comment"># Anadir en el panel DNS de tu proveedor de dominio:</span><br>
+                Tipo: <span class="val">CNAME</span><br>
+                Nombre: <span class="val">app</span><br>
+                Valor: <span class="val">cname.vercel-dns.com</span>
+            </div>
+
+            <p><strong>4d.</strong> Espera a que propague (5 min - 24h). Vercel genera certificado SSL automaticamente.</p>
+
+            <div class="highlight highlight-gold">
+                <div class="highlight-icon">💡</div>
+                <div><strong>Si no tienes dominio propio:</strong> La URL de Vercel (<code>capilar-xxxx.vercel.app</code>) funciona perfectamente. Puedes configurar el dominio despues.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Paso 5: Verificar</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">5</div>
+            <div>
+                <h2>Verificar que todo funciona</h2>
+                <small>Checklist de verificacion post-deploy</small>
+            </div>
+            <div class="time">~3 min</div>
+        </div>
+        <div class="step-body">
+            <ul class="checklist">
+                <li>Abrir la URL de Vercel → se ve la pagina de inicio con logo Capilex</li>
+                <li>Ir a /login → introducir <strong>TEST1234</strong> → redirige al dashboard</li>
+                <li>Ver el contador de dias postoperatorio correcto</li>
+                <li>Ir a /checklist → ver tareas del dia</li>
+                <li>Ir a /medications → ver los 4 medicamentos</li>
+                <li>Ir a /shopping → ver los 8 items</li>
+                <li>Ir a /chat → enviar un mensaje → recibir respuesta del agente IA</li>
+                <li>Ir a /photos/upload → subir una foto → ver analisis IA</li>
+                <li>Ir a /emergency → ver telefono y email de la clinica</li>
+            </ul>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">🎉</div>
+                <div><strong>Si todo funciona, la app esta en produccion!</strong> Cada push a <code>main</code> en GitHub desplegara automaticamente en Vercel.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Despliegues automaticos</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">6</div>
+            <div>
+                <h2>Actualizaciones futuras</h2>
+                <small>CI/CD automatico con GitHub</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Cada vez que hagas push a <code>main</code>, Vercel despliega automaticamente:</p>
+            <div class="code-block">
+                <span class="comment"># Desde tu maquina local:</span><br>
+                git add .<br>
+                git commit -m <span class="val">"feat: nueva funcionalidad"</span><br>
+                git push origin main<br><br>
+                <span class="comment"># Vercel detecta el push y despliega en ~2 min</span>
+            </div>
+
+            <p>Tambien puedes ver el estado de cada deploy en <code>vercel.com/dashboard</code>.</p>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Troubleshooting</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">?</div>
+            <div>
+                <h2>Problemas comunes</h2>
+                <small>Si algo no funciona</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <table class="env-table">
+                <thead>
+                    <tr>
+                        <th>Problema</th>
+                        <th>Solucion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family: inherit;">Build falla en Vercel</td>
+                        <td style="font-family: inherit;">Verifica que todas las env vars obligatorias estan configuradas. Ve a Deployments → click en el deploy fallido → ver logs.</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Login dice "Codigo no encontrado"</td>
+                        <td style="font-family: inherit;">Verifica que ejecutaste el SQL del paso 2 en Supabase. El codigo es TEST1234 (mayusculas).</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Chat no responde / error IA</td>
+                        <td style="font-family: inherit;">Verifica que OPENAI_API_KEY es valida y tiene credito. Ve a platform.openai.com/usage.</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Fotos no se suben</td>
+                        <td style="font-family: inherit;">Verifica que creaste el bucket "patient-photos" en Supabase Storage (paso 1d).</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Telegram no envia</td>
+                        <td style="font-family: inherit;">Verifica TELEGRAM_BOT_TOKEN y TELEGRAM_CLINIC_CHAT_ID. El bot debe ser admin del grupo.</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Error 500 en API</td>
+                        <td style="font-family: inherit;">Ve a Vercel → Functions → Logs para ver el error detallado.</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Cron jobs no se ejecutan</td>
+                        <td style="font-family: inherit;">Los cron jobs solo funcionan en Vercel Pro ($20/mes) o con un servicio externo tipo cron-job.org.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight highlight-blue">
+                <div class="highlight-icon">💡</div>
+                <div><strong>Cron gratis alternativo:</strong> Si usas Vercel Hobby (gratis), los cron jobs no estan disponibles. Puedes usar <code>cron-job.org</code> (gratis) para llamar a tus endpoints <code>/api/cron/daily-summary</code> con el header <code>Authorization: Bearer TU_CRON_SECRET</code>.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Resumen de URLs</span></div>
+    <!-- ============================================ -->
+
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">✓</div>
+            <div>
+                <h2>URLs importantes post-deploy</h2>
+            </div>
+        </div>
+        <div class="step-body">
+            <table class="env-table">
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-family: inherit;">App (produccion)</td>
+                        <td>capilar-xxxx.vercel.app <em style="color:var(--text-muted)">(o app.capilexmadrid.es)</em></td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">GitHub repo</td>
+                        <td>github.com/jsalamanca-beai/capilar</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Vercel dashboard</td>
+                        <td>vercel.com/dashboard</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Supabase dashboard</td>
+                        <td>supabase.com/dashboard</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">OpenAI usage</td>
+                        <td>platform.openai.com/usage</td>
+                    </tr>
+                    <tr>
+                        <td style="font-family: inherit;">Test Telegram</td>
+                        <td>/api/telegram/test <em style="color:var(--text-muted)">(solo en desarrollo)</em></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        Capilex Madrid &mdash; Guia de deploy Vercel v1.0<br>
+        Repo: github.com/jsalamanca-beai/capilar
+    </div>
+
+</div>
+</body>
+</html>
