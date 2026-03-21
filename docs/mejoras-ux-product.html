@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mejoras UX/UI + Product Owner - Capilex App</title>
+    <style>
+        :root { --gold: rgb(231,184,97); --gold-light: rgba(231,184,97,0.15); --gold-subtle: rgba(231,184,97,0.08); --gold-border: rgba(231,184,97,0.25); --bg: #0a0a0a; --bg-card: #111; --text: #d4d4d4; --text-muted: #888; --white: #fff; --success: #27ae60; --success-bg: rgba(39,174,96,0.1); --danger: #c0392b; --danger-bg: rgba(192,57,43,0.1); --blue: #2980b9; --blue-bg: rgba(41,128,185,0.1); --purple: #9b59b6; --purple-bg: rgba(155,89,182,0.1); }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+        .header { background:#000; padding:35px 20px 25px; text-align:center; border-bottom:2px solid var(--gold); }
+        .header h1 { font-size:1.5em; color:var(--gold); letter-spacing:3px; font-weight:300; text-transform:uppercase; }
+        .header p { color:var(--text-muted); font-size:0.85em; }
+        .container { max-width:900px; margin:0 auto; padding:20px 16px; }
+        .divider { text-align:center; padding:24px 0 12px; position:relative; }
+        .divider::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:linear-gradient(to right,transparent,var(--gold-border),transparent); }
+        .divider span { background:var(--bg); padding:0 16px; position:relative; font-size:0.75em; color:var(--gold); text-transform:uppercase; letter-spacing:3px; }
+        .card { margin-bottom:14px; border-radius:8px; background:var(--bg-card); border:1px solid #1a1a1a; overflow:hidden; }
+        .card-h { padding:14px 18px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #1a1a1a; background:linear-gradient(135deg,#111,#0d0d0d); }
+        .card-h h3 { font-size:0.9em; color:var(--white); font-weight:500; flex:1; }
+        .card-b { padding:12px 18px; font-size:0.85em; }
+        .badge { padding:2px 8px; border-radius:3px; font-size:0.65em; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+        .b-must { background:var(--danger-bg); color:var(--danger); }
+        .b-should { background:rgba(230,126,34,0.1); color:#e67e22; }
+        .b-could { background:var(--blue-bg); color:var(--blue); }
+        .b-quick { background:var(--success-bg); color:var(--success); }
+        .b-ux { background:var(--purple-bg); color:var(--purple); }
+        .b-po { background:var(--blue-bg); color:var(--blue); }
+        .effort { font-size:0.7em; color:var(--text-muted); margin-left:auto; }
+        table { width:100%; border-collapse:separate; border-spacing:0 3px; margin:8px 0; font-size:0.82em; }
+        th { text-align:left; padding:6px 12px; color:var(--gold); font-size:0.7em; text-transform:uppercase; letter-spacing:1px; }
+        td { padding:8px 12px; background:rgba(255,255,255,0.03); }
+        tr td:first-child { border-radius:6px 0 0 6px; border-left:2px solid var(--gold-border); color:var(--white); }
+        tr td:last-child { border-radius:0 6px 6px 0; }
+        .footer { text-align:center; padding:20px; color:var(--text-muted); font-size:0.75em; margin-top:20px; }
+        @media(max-width:600px) { table { display:block; overflow-x:auto; } }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Mejoras UX/UI + Product</h1>
+    <p>Recomendaciones de agentes expertos &mdash; Capilex Patient App</p>
+</div>
+<div class="container">
+
+    <!-- ====== UX QUICK WINS ====== -->
+    <div class="divider"><span>UX/UI &mdash; Quick Wins (30min cada una)</span></div>
+
+    <div class="card"><div class="card-h"><h3>1. Frases de tranquilidad por fase en el checklist</h3><span class="badge b-quick">30 min</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">En vez de "Dias 3 y 4 - Primer lavado zona donante", mostrar: <em>"Las costras son senal de que el foliculo esta vivo."</em> Cada fase tiene su frase de tranquilidad. Reduce ansiedad sin anadir UI.</div></div>
+
+    <div class="card"><div class="card-h"><h3>2. Banners especiales dia cirugia y dia 1</h3><span class="badge b-quick">30 min</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Dia 0: "Hoy es el gran dia. El equipo de Capilex tiene todo preparado." Dia 1: "Las primeras 24 horas. La hinchazon que ves es completamente normal." Override visual en el dashboard.</div></div>
+
+    <div class="card"><div class="card-h"><h3>3. Emergencia reenfocada como "Tu equipo de apoyo"</h3><span class="badge b-quick">30 min</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Cambiar "Contacto de emergencia" (priming de panico) por "Tu equipo de apoyo". Chat IA primero (24/7, sin friccion), llamar clinica segundo. Reducir tono alarmista.</div></div>
+
+    <div class="card"><div class="card-h"><h3>4. Celebracion al completar 100% del dia</h3><span class="badge b-quick">30 min</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Cuando todas las tareas estan marcadas, reemplazar la barra de progreso con: "Dia completado. Has seguido el protocolo al 100%. Eso marca la diferencia." Borde dorado.</div></div>
+
+    <!-- ====== UX MEDIUM ====== -->
+    <div class="divider"><span>UX/UI &mdash; Mejoras medias (1-3h)</span></div>
+
+    <div class="card"><div class="card-h"><h3>5. Onboarding de bienvenida (primera vez)</h3><span class="badge b-should">2h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">5 pantallas con slide: "Tu recuperacion dia a dia", "Tareas del dia", "Fotos de seguimiento", "3 expertos 24/7", "Si algo no va bien". Se muestra solo la primera vez (localStorage). Boton "Saltar".</div></div>
+
+    <div class="card"><div class="card-h"><h3>6. Bottom nav: cambiar Ayuda por Medicacion</h3><span class="badge b-should">1h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Tabs: Hoy | Tareas | Fotos | Chat | Medicacion. Mover el icono de emergencia al header (siempre visible). Anadir indicador gold top-bar en tab activo + safe-area-inset para iPhone.</div></div>
+
+    <div class="card"><div class="card-h"><h3>7. Contador de dias con anillo SVG de progreso</h3><span class="badge b-should">2h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Reemplazar el numero plano por un anillo circular SVG dorado que se llena segun avanza la fase. Mucho mas visual y motivador.</div></div>
+
+    <div class="card"><div class="card-h"><h3>8. Ticker de hidratacion en el checklist</h3><span class="badge b-should">1h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Mini anillo de cuenta atras de 30 min en la parte superior del checklist. Sin popups ni alertas. Click para registrar hidratacion. Se reinicia. Visible solo dias 1-15.</div></div>
+
+    <div class="card"><div class="card-h"><h3>9. Sugerencias de chat por dia postoperatorio</h3><span class="badge b-should">1h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">Dia 3: "La hinchazon no baja, es normal?", "Puedo tomar ibuprofeno?". Dia 14: "El shedding me preocupa", "Cuando veo resultados?". Pills horizontales scrollables siempre visibles sobre el input.</div></div>
+
+    <div class="card"><div class="card-h"><h3>10. Resultado fotos como bottom sheet</h3><span class="badge b-should">2h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">El analisis IA aparece como sheet deslizable desde abajo en vez de inline. Mas impactante, no se pierde al hacer scroll. Con "handle" para cerrar.</div></div>
+
+    <div class="card"><div class="card-h"><h3>11. Diagrama de cabeza para seleccionar zona de foto</h3><span class="badge b-could">3h</span><span class="badge b-ux">UX</span></div>
+    <div class="card-b">SVG de cabeza con zonas clickables (frontal, superior, donante, laterales) en vez de 6 botones de texto. El paciente toca la zona de la cabeza que quiere fotografiar.</div></div>
+
+    <!-- ====== PRODUCT OWNER ====== -->
+    <div class="divider"><span>Product Owner &mdash; Features de alto impacto</span></div>
+
+    <div class="card"><div class="card-h"><h3>12. Push Notifications (completa P08)</h3><span class="badge b-must">MUST</span><span class="badge b-po">PO</span><span class="effort">M (2-3d)</span></div>
+    <div class="card-b">Sin notificaciones push, todo depende de que el paciente abra la app. Implementar Web Push API + Supabase Edge Functions. Recordatorios: medicacion (manana/noche), tarea pendiente, foto semanal. <strong>Bloqueador principal de adherencia.</strong></div></div>
+
+    <div class="card"><div class="card-h"><h3>13. Deteccion inactividad (completa C06)</h3><span class="badge b-must">MUST</span><span class="badge b-po">PO</span><span class="effort">M (2-3d)</span></div>
+    <div class="card-b">Cron que evalua last_activity: 48h → push al paciente, 72h → alerta Telegram clinica, 7d → sugerir llamada telefonica. Flag visual en admin panel "paciente inactivo".</div></div>
+
+    <div class="card"><div class="card-h"><h3>14. Comparativa visual Before/After (slider)</h3><span class="badge b-must">MUST</span><span class="badge b-po">PO</span><span class="effort">S (1d)</span></div>
+    <div class="card-b">Slider visual comparando foto dia 1 vs foto actual. Reduce ansiedad en fase shedding. Contenido que el paciente comparte → genera referidos. Seleccion automatica de fotos del mismo angulo.</div></div>
+
+    <div class="card"><div class="card-h"><h3>15. Score de adherencia paciente (0-100)</h3><span class="badge b-must">MUST</span><span class="badge b-po">PO</span><span class="effort">M (2-3d)</span></div>
+    <div class="card-b">Score compuesto: checklist completion (30%) + medicacion (30%) + fotos (20%) + engagement (20%). Grafico de tendencia semanal. Vista "pacientes en riesgo" en admin. Permite a la clinica con 50+ pacientes saber quien necesita atencion HOY.</div></div>
+
+    <div class="card"><div class="card-h"><h3>16. Contenido educativo contextual por fase</h3><span class="badge b-should">SHOULD</span><span class="badge b-po">PO</span><span class="effort">M (2-3d)</span></div>
+    <div class="card-b">Cards en dashboard con info + fotos ejemplo de evolucion normal + video corto del doctor. Se desbloquean por fase. Reduce 80% de consultas sobre sintomas normales (costras, shedding, crecimiento lento).</div></div>
+
+    <div class="card"><div class="card-h"><h3>17. Encuestas de sintomas (PROs)</h3><span class="badge b-should">SHOULD</span><span class="badge b-po">PO</span><span class="effort">M (2-3d)</span></div>
+    <div class="card-b">Formularios breves (3-5 preguntas, escalas 1-5) en momentos clave: dia 1, 3, 7, 14, 30, 90, 180, 365. Capturan dolor, inflamacion, satisfaccion. Alertas si dolor > 7. Genera datos clinicos objetivos.</div></div>
+
+    <div class="card"><div class="card-h"><h3>18. Calendario de citas con "Anadir a calendario"</h3><span class="badge b-should">SHOULD</span><span class="badge b-po">PO</span><span class="effort">S (1d)</span></div>
+    <div class="card-b">Proxima cita prominente en dashboard. Boton genera .ics para Google/Apple Calendar. Recordatorio 48h y 2h antes. Reduce no-shows (15-20% en clinicas capilares).</div></div>
+
+    <div class="card"><div class="card-h"><h3>19. Gamificacion: badges y logros</h3><span class="badge b-should">SHOULD</span><span class="badge b-po">PO</span><span class="effort">S (1d)</span></div>
+    <div class="card-b">"7 dias consecutivos", "Primer mes completado", "Medicacion perfecta 30 dias". Barra progreso global. Toast de celebracion. Estudios mHealth: +23% adherencia.</div></div>
+
+    <div class="card"><div class="card-h"><h3>20. Informe PDF de evolucion</h3><span class="badge b-could">COULD</span><span class="badge b-po">PO</span><span class="effort">M (2-3d)</span></div>
+    <div class="card-b">PDF profesional: datos paciente + timeline fotos + analisis IA + adherencia + medicacion + notas clinicas. Para compartir con dermatologo o documentacion legal.</div></div>
+
+    <div class="card"><div class="card-h"><h3>21. Programa de referidos</h3><span class="badge b-could">COULD</span><span class="badge b-po">PO</span><span class="effort">S (1d)</span></div>
+    <div class="card-b">CTA en mes 6-12 (pico satisfaccion): "Comparte tu experiencia" con codigo referido. Solo para pacientes con adherencia > 70%. Ticket medio trasplante: 3.000-6.000 EUR → ROI enorme por referido.</div></div>
+
+    <!-- ====== RESUMEN ====== -->
+    <div class="divider"><span>Plan de implementacion</span></div>
+
+    <table>
+        <thead><tr><th>Sprint</th><th>Features</th><th>Tiempo</th><th>Impacto</th></tr></thead>
+        <tbody>
+            <tr><td>Quick wins (hoy)</td><td>1, 2, 3, 4 (frases tranquilidad, banners, emergencia, celebracion)</td><td>2h</td><td>Reduce ansiedad inmediatamente</td></tr>
+            <tr><td>Sprint 1</td><td>5, 6, 7, 8 (onboarding, nav, anillo, hidratacion)</td><td>1 semana</td><td>UX profesional</td></tr>
+            <tr><td>Sprint 2</td><td>12, 13, 14 (push, inactividad, before/after)</td><td>1 semana</td><td>Adherencia +40%</td></tr>
+            <tr><td>Sprint 3</td><td>15, 16, 9, 10 (score, educativo, sugerencias chat, photo sheet)</td><td>1 semana</td><td>Clinica eficiente</td></tr>
+            <tr><td>Sprint 4</td><td>17, 18, 19, 11 (PROs, calendario, badges, zona diagram)</td><td>1 semana</td><td>Diferenciacion</td></tr>
+            <tr><td>Backlog</td><td>20, 21 (PDF, referidos)</td><td>3 dias</td><td>Revenue</td></tr>
+        </tbody>
+    </table>
+
+    <div class="footer">Capilex Madrid &mdash; Informe UX/UI + Product Owner &mdash; Generado por agentes expertos</div>
+</div>
+</body>
+</html>
