@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   // Get all active interventions
   const { data: interventions } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .eq("is_active", true);
 
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     // Check for missing photos on key days
     if (photoCheckDays.includes(day)) {
       const { data: photos } = await supabase
-        .from("photos")
+        .from("cap_photos")
         .select("id")
         .eq("intervention_id", inv.id)
         .eq("day_offset", day)
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
   // Count pending escalations
   const { count: pendingEscalations } = await supabase
-    .from("chat_messages")
+    .from("cap_chat_messages")
     .select("*", { count: "exact", head: true })
     .eq("is_escalated", true)
     .is("read_at", null);
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     if (photoCheckDays.includes(day - 1)) {
       // Yesterday was photo day, check if submitted
       const { data: photos } = await supabase
-        .from("photos")
+        .from("cap_photos")
         .select("id")
         .eq("intervention_id", inv.id)
         .eq("day_offset", day - 1)

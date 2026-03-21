@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
   // Get intervention
   const { data: intervention } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .eq("id", interventionId)
     .single();
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Save patient message
-  await supabase.from("chat_messages").insert({
+  await supabase.from("cap_chat_messages").insert({
     intervention_id: interventionId,
     role: "patient",
     content: message.trim(),
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
   // Handle escalation
   if (escalate) {
-    await supabase.from("chat_messages").insert({
+    await supabase.from("cap_chat_messages").insert({
       intervention_id: interventionId,
       role: "ai_agent",
       content: ESCALATION_MESSAGE,
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
   // Get conversation history (last 20 messages)
   const { data: history } = await supabase
-    .from("chat_messages")
+    .from("cap_chat_messages")
     .select("role, content, metadata")
     .eq("intervention_id", interventionId)
     .order("created_at", { ascending: false })
@@ -161,7 +161,7 @@ async function saveAIMessage(
   content: string,
   dayOffset: number
 ) {
-  await supabase.from("chat_messages").insert({
+  await supabase.from("cap_chat_messages").insert({
     intervention_id: interventionId,
     role: "ai_agent",
     content,

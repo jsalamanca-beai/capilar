@@ -6,7 +6,7 @@ export async function GET() {
 
   // Unreviewed photos
   const { data: photos } = await supabase
-    .from("photos")
+    .from("cap_photos")
     .select("id, intervention_id, day_offset, zone, ai_analysis, is_flagged, created_at")
     .is("staff_reviewed_at", null)
     .order("created_at", { ascending: false })
@@ -14,7 +14,7 @@ export async function GET() {
 
   // Unread escalations
   const { data: escalations } = await supabase
-    .from("chat_messages")
+    .from("cap_chat_messages")
     .select("id, intervention_id, content, day_offset, created_at")
     .eq("is_escalated", true)
     .is("read_at", null)
@@ -25,7 +25,7 @@ export async function GET() {
   const today = new Date().toISOString().split("T")[0];
   const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   const { data: upcoming } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .gte("surgery_date", today)
     .lte("surgery_date", nextWeek)

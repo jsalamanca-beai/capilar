@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceClient();
   const { data: intervention, error } = await supabase
-    .from("interventions")
+    .from("cap_interventions")
     .select("id, patient_id, clinic_id, surgery_date, status, access_code_expires_at")
     .eq("access_code", code.trim().toUpperCase())
     .eq("is_active", true)

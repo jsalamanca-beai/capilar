@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = createServiceClient();
   const { data: messages, error } = await supabase
-    .from("chat_messages")
+    .from("cap_chat_messages")
     .select("*")
     .eq("intervention_id", interventionId)
     .order("created_at", { ascending: true })

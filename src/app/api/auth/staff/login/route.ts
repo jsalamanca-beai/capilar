@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   );
 
   const { data: staffData } = await serviceClient
-    .from("staff")
+    .from("cap_staff")
     .select("id, clinic_id, full_name, role")
     .eq("id", data.user.id)
     .single();

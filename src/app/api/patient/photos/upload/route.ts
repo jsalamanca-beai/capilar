@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   // Get intervention data
   const { data: intervention } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .eq("id", interventionId)
     .single();
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
 
   // Save to database
   const { data: photo, error: dbError } = await supabase
-    .from("photos")
+    .from("cap_photos")
     .insert({
       intervention_id: interventionId,
       storage_path: storagePath,

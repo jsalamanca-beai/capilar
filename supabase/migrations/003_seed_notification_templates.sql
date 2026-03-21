@@ -4,9 +4,9 @@
 -- ============================================================
 
 -- Tabla auxiliar para templates (no necesita FK a interventions)
-CREATE TABLE notification_templates (
+CREATE TABLE cap_notification_templates (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    protocol_id         uuid NOT NULL REFERENCES care_protocols(id) ON DELETE CASCADE,
+    protocol_id         uuid NOT NULL REFERENCES cap_care_protocols(id) ON DELETE CASCADE,
     trigger_day_offset  integer NOT NULL,
     trigger_time        time NOT NULL DEFAULT '09:00',
     notification_type   text NOT NULL,
@@ -17,12 +17,12 @@ CREATE TABLE notification_templates (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_notif_templates ON notification_templates(protocol_id, trigger_day_offset);
+CREATE INDEX cap_idx_notif_templates ON cap_notification_templates(protocol_id, trigger_day_offset);
 
 -- ============================================================
 -- ALERTAS PRE-OPERATORIAS
 -- ============================================================
-INSERT INTO notification_templates (protocol_id, trigger_day_offset, trigger_time, notification_type, title, body) VALUES
+INSERT INTO cap_notification_templates (protocol_id, trigger_day_offset, trigger_time, notification_type, title, body) VALUES
 ('00000000-0000-0000-0000-000000000010', -15, '09:00', 'task_reminder',
  'Comienza tu preparacion pre-operatoria',
  'Faltan 15 dias para tu cirugia. Suspende el minoxidil, complejos vitaminicos y reduce el deporte intenso. Revisa tu checklist.'),

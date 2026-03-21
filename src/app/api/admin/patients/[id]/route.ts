@@ -9,7 +9,7 @@ export async function GET(
   const supabase = createServiceClient();
 
   const { data: intervention } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .eq("id", id)
     .single();

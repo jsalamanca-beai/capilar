@@ -4,13 +4,13 @@
 -- ============================================================
 
 -- 1. CLINICA
-INSERT INTO clinics (id, name, slug, address, phone, email, timezone) VALUES
+INSERT INTO cap_clinics (id, name, slug, address, phone, email, timezone) VALUES
 ('00000000-0000-0000-0000-000000000001',
  'Capilex Madrid', 'capilex-madrid',
  'Madrid, Espana', NULL, 'recetas@capilexmadrid.es', 'Europe/Madrid');
 
 -- 2. PROTOCOLO FUE STANDARD
-INSERT INTO care_protocols (id, clinic_id, name, description, intervention_type, pre_op_days, post_op_days, is_default) VALUES
+INSERT INTO cap_care_protocols (id, clinic_id, name, description, intervention_type, pre_op_days, post_op_days, is_default) VALUES
 ('00000000-0000-0000-0000-000000000010',
  '00000000-0000-0000-0000-000000000001',
  'FUE Standard Capilex',
@@ -22,7 +22,7 @@ INSERT INTO care_protocols (id, clinic_id, name, description, intervention_type,
 -- ============================================================
 
 -- === PRE-OP: 15 DIAS ANTES (day_offset = -15) ===
-INSERT INTO protocol_task_items (protocol_id, day_offset, day_offset_end, title, description, category, frequency, priority, sort_order, icon) VALUES
+INSERT INTO cap_protocol_task_items (protocol_id, day_offset, day_offset_end, title, description, category, frequency, priority, sort_order, icon) VALUES
 ('00000000-0000-0000-0000-000000000010', -15, -8, 'Suspender Minoxidil', 'Si esta en tratamiento con minoxidil, debe suspenderlo.', 'restriction', 'once', 'high', 1, '💊'),
 ('00000000-0000-0000-0000-000000000010', -15, -8, 'Revisar cuero cabelludo', 'Si nota picor, enrojecimiento o caspa, comunicarlo a la clinica para tratarlo antes de la cirugia.', 'care', 'once', 'high', 2, '🔍'),
 ('00000000-0000-0000-0000-000000000010', -15, -8, 'Suspender complejos vitaminicos', 'Suspender Vitamina E y hierbas medicinales como Ginkgo Biloba. Alteran la cicatrizacion.', 'restriction', 'once', 'high', 3, '💊'),
@@ -95,7 +95,7 @@ INSERT INTO protocol_task_items (protocol_id, day_offset, day_offset_end, title,
 -- ============================================================
 -- 4. PROTOCOL MEDICATION ITEMS
 -- ============================================================
-INSERT INTO protocol_medication_items (protocol_id, name, category, dosage, frequency, start_day_offset, duration_days, is_mandatory, instructions, sort_order) VALUES
+INSERT INTO cap_protocol_medication_items (protocol_id, name, category, dosage, frequency, start_day_offset, duration_days, is_mandatory, instructions, sort_order) VALUES
 ('00000000-0000-0000-0000-000000000010', 'Ciprofloxacino', 'antibiotic', '500 mg', 'Cada 12h (desayuno y cena)', 0, 7, true, 'Tomar con agua. Evitar lacteos 2h antes/despues. Antibiotico para prevenir infeccion.', 1),
 ('00000000-0000-0000-0000-000000000010', 'Paracetamol', 'painkiller', '1 g', 'Cada 8h (desayuno, comida, cena)', 0, 3, true, 'Primeros 3 dias pautado. Despues a demanda si hay dolor. No exceder 4g/dia.', 2),
 ('00000000-0000-0000-0000-000000000010', 'Prednisona', 'anti_inflammatory', '30 mg', 'Cada 24h en el desayuno', 0, 5, true, 'Dia de la intervencion incluido. Antiinflamatorio para reducir hinchazon.', 3),
@@ -104,7 +104,7 @@ INSERT INTO protocol_medication_items (protocol_id, name, category, dosage, freq
 -- ============================================================
 -- 5. PROTOCOL SHOPPING ITEMS
 -- ============================================================
-INSERT INTO protocol_shopping_items (protocol_id, name, description, where_to_buy, category, icon, sort_order) VALUES
+INSERT INTO cap_protocol_shopping_items (protocol_id, name, description, where_to_buy, category, icon, sort_order) VALUES
 ('00000000-0000-0000-0000-000000000010', 'Agua Termal', 'Spray tipo AVENE', 'Farmacia / Parafarmacia', 'essential', '💧', 1),
 ('00000000-0000-0000-0000-000000000010', 'Mustela Mousse', 'Champu espuma para bebes', 'Farmacia / Parafarmacia', 'essential', '🧴', 2),
 ('00000000-0000-0000-0000-000000000010', 'Blastoestimulina', 'Pomada cicatrizante', 'Farmacia (con o sin receta)', 'essential', '💊', 3),

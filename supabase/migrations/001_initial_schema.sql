@@ -1,15 +1,16 @@
 -- ============================================================
 -- CAPILEX PATIENT APP - DATABASE SCHEMA v2.0
 -- Supabase (PostgreSQL 15+)
+-- Prefijo: cap_ en todos los objetos
 -- 19 tablas + 1 vista
 -- ============================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================
--- 1. CLINICS
+-- 1. cap_clinics
 -- ============================================================
-CREATE TABLE clinics (
+CREATE TABLE cap_clinics (
     id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name        text NOT NULL,
     slug        text NOT NULL UNIQUE,
@@ -23,11 +24,11 @@ CREATE TABLE clinics (
 );
 
 -- ============================================================
--- 2. PATIENTS (datos personales, sin datos clinicos)
+-- 2. cap_patients
 -- ============================================================
-CREATE TABLE patients (
+CREATE TABLE cap_patients (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    clinic_id           uuid NOT NULL REFERENCES clinics(id),
+    clinic_id           uuid NOT NULL REFERENCES cap_clinics(id),
     first_name          text NOT NULL,
     last_name           text NOT NULL,
     email               text,
@@ -42,15 +43,15 @@ CREATE TABLE patients (
     updated_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_patients_clinic ON patients(clinic_id);
-CREATE INDEX idx_patients_email ON patients(email) WHERE email IS NOT NULL;
+CREATE INDEX cap_idx_patients_clinic ON cap_patients(clinic_id);
+CREATE INDEX cap_idx_patients_email ON cap_patients(email) WHERE email IS NOT NULL;
 
 -- ============================================================
--- 3. STAFF (personal de la clinica, usa Supabase Auth)
+-- 3. cap_staff
 -- ============================================================
-CREATE TABLE staff (
+CREATE TABLE cap_staff (
     id          uuid PRIMARY KEY REFERENCES auth.users(id),
-    clinic_id   uuid NOT NULL REFERENCES clinics(id),
+    clinic_id   uuid NOT NULL REFERENCES cap_clinics(id),
     full_name   text NOT NULL,
     role        text NOT NULL DEFAULT 'coordinator'
                 CHECK (role IN ('admin', 'doctor', 'coordinator')),
@@ -58,14 +59,14 @@ CREATE TABLE staff (
     created_at  timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_staff_clinic ON staff(clinic_id);
+CREATE INDEX cap_idx_staff_clinic ON cap_staff(clinic_id);
 
 -- ============================================================
--- 4. CARE PROTOCOLS (plantillas de cuidado)
+-- 4. cap_care_protocols
 -- ============================================================
-CREATE TABLE care_protocols (
+CREATE TABLE cap_care_protocols (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    clinic_id           uuid NOT NULL REFERENCES clinics(id),
+    clinic_id           uuid NOT NULL REFERENCES cap_clinics(id),
     name                text NOT NULL,
     description         text,
     intervention_type   text NOT NULL DEFAULT 'fue',
@@ -78,14 +79,14 @@ CREATE TABLE care_protocols (
     updated_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_protocols_clinic ON care_protocols(clinic_id, is_active);
+CREATE INDEX cap_idx_protocols_clinic ON cap_care_protocols(clinic_id, is_active);
 
 -- ============================================================
--- 5. PROTOCOL TASK ITEMS (tareas/checklists por dia)
+-- 5. cap_protocol_task_items
 -- ============================================================
-CREATE TABLE protocol_task_items (
+CREATE TABLE cap_protocol_task_items (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    protocol_id     uuid NOT NULL REFERENCES care_protocols(id) ON DELETE CASCADE,
+    protocol_id     uuid NOT NULL REFERENCES cap_care_protocols(id) ON DELETE CASCADE,
     day_offset      integer NOT NULL,
     day_offset_end  integer,
     title           text NOT NULL,
@@ -102,14 +103,14 @@ CREATE TABLE protocol_task_items (
     created_at      timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_proto_tasks_day ON protocol_task_items(protocol_id, day_offset);
+CREATE INDEX cap_idx_proto_tasks_day ON cap_protocol_task_items(protocol_id, day_offset);
 
 -- ============================================================
--- 6. PROTOCOL MEDICATION ITEMS
+-- 6. cap_protocol_medication_items
 -- ============================================================
-CREATE TABLE protocol_medication_items (
+CREATE TABLE cap_protocol_medication_items (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    protocol_id         uuid NOT NULL REFERENCES care_protocols(id) ON DELETE CASCADE,
+    protocol_id         uuid NOT NULL REFERENCES cap_care_protocols(id) ON DELETE CASCADE,
     name                text NOT NULL,
     category            text NOT NULL
                         CHECK (category IN ('antibiotic', 'painkiller', 'anti_inflammatory',
@@ -125,14 +126,14 @@ CREATE TABLE protocol_medication_items (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_proto_meds ON protocol_medication_items(protocol_id, start_day_offset);
+CREATE INDEX cap_idx_proto_meds ON cap_protocol_medication_items(protocol_id, start_day_offset);
 
 -- ============================================================
--- 7. PROTOCOL SHOPPING ITEMS
+-- 7. cap_protocol_shopping_items
 -- ============================================================
-CREATE TABLE protocol_shopping_items (
+CREATE TABLE cap_protocol_shopping_items (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    protocol_id     uuid NOT NULL REFERENCES care_protocols(id) ON DELETE CASCADE,
+    protocol_id     uuid NOT NULL REFERENCES cap_care_protocols(id) ON DELETE CASCADE,
     name            text NOT NULL,
     description     text,
     where_to_buy    text,
@@ -145,13 +146,13 @@ CREATE TABLE protocol_shopping_items (
 );
 
 -- ============================================================
--- 8. INTERVENTIONS (entidad central: cada cirugia)
+-- 8. cap_interventions
 -- ============================================================
-CREATE TABLE interventions (
+CREATE TABLE cap_interventions (
     id                      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    patient_id              uuid NOT NULL REFERENCES patients(id),
-    protocol_id             uuid NOT NULL REFERENCES care_protocols(id),
-    clinic_id               uuid NOT NULL REFERENCES clinics(id),
+    patient_id              uuid NOT NULL REFERENCES cap_patients(id),
+    protocol_id             uuid NOT NULL REFERENCES cap_care_protocols(id),
+    clinic_id               uuid NOT NULL REFERENCES cap_clinics(id),
     access_code             text NOT NULL UNIQUE,
     surgery_date            date NOT NULL,
     status                  text NOT NULL DEFAULT 'scheduled'
@@ -169,17 +170,17 @@ CREATE TABLE interventions (
     updated_at              timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_interventions_patient ON interventions(patient_id);
-CREATE INDEX idx_interventions_clinic_status ON interventions(clinic_id, status);
-CREATE INDEX idx_interventions_date ON interventions(clinic_id, surgery_date);
+CREATE INDEX cap_idx_interventions_patient ON cap_interventions(patient_id);
+CREATE INDEX cap_idx_interventions_clinic_status ON cap_interventions(clinic_id, status);
+CREATE INDEX cap_idx_interventions_date ON cap_interventions(clinic_id, surgery_date);
 
 -- ============================================================
--- 9. TASK COMPLETIONS
+-- 9. cap_task_completions
 -- ============================================================
-CREATE TABLE task_completions (
+CREATE TABLE cap_task_completions (
     id                      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id         uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
-    protocol_task_item_id   uuid REFERENCES protocol_task_items(id),
+    intervention_id         uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
+    protocol_task_item_id   uuid REFERENCES cap_protocol_task_items(id),
     day_offset              integer NOT NULL,
     completed_at            timestamptz,
     skipped                 boolean NOT NULL DEFAULT false,
@@ -187,18 +188,18 @@ CREATE TABLE task_completions (
     created_at              timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_task_compl_intervention ON task_completions(intervention_id, day_offset);
-CREATE UNIQUE INDEX idx_task_compl_unique
-    ON task_completions(intervention_id, protocol_task_item_id, day_offset)
+CREATE INDEX cap_idx_task_compl_intervention ON cap_task_completions(intervention_id, day_offset);
+CREATE UNIQUE INDEX cap_idx_task_compl_unique
+    ON cap_task_completions(intervention_id, protocol_task_item_id, day_offset)
     WHERE protocol_task_item_id IS NOT NULL;
 
 -- ============================================================
--- 10. MEDICATION LOGS
+-- 10. cap_medication_logs
 -- ============================================================
-CREATE TABLE medication_logs (
+CREATE TABLE cap_medication_logs (
     id                              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id                 uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
-    protocol_medication_item_id     uuid REFERENCES protocol_medication_items(id),
+    intervention_id                 uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
+    protocol_medication_item_id     uuid REFERENCES cap_protocol_medication_items(id),
     taken_at                        timestamptz NOT NULL DEFAULT now(),
     day_offset                      integer NOT NULL,
     dose_label                      text,
@@ -207,15 +208,15 @@ CREATE TABLE medication_logs (
     created_at                      timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_med_logs_intervention ON medication_logs(intervention_id, day_offset);
+CREATE INDEX cap_idx_med_logs_intervention ON cap_medication_logs(intervention_id, day_offset);
 
 -- ============================================================
--- 11. SHOPPING LIST CHECKS
+-- 11. cap_shopping_list_checks
 -- ============================================================
-CREATE TABLE shopping_list_checks (
+CREATE TABLE cap_shopping_list_checks (
     id                          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id             uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
-    protocol_shopping_item_id   uuid NOT NULL REFERENCES protocol_shopping_items(id),
+    intervention_id             uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
+    protocol_shopping_item_id   uuid NOT NULL REFERENCES cap_protocol_shopping_items(id),
     purchased                   boolean NOT NULL DEFAULT false,
     purchased_at                timestamptz,
     created_at                  timestamptz NOT NULL DEFAULT now(),
@@ -223,11 +224,11 @@ CREATE TABLE shopping_list_checks (
 );
 
 -- ============================================================
--- 12. PHOTOS (con analisis IA)
+-- 12. cap_photos
 -- ============================================================
-CREATE TABLE photos (
+CREATE TABLE cap_photos (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id     uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
+    intervention_id     uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
     storage_path        text NOT NULL,
     thumbnail_path      text,
     day_offset          integer NOT NULL,
@@ -244,15 +245,15 @@ CREATE TABLE photos (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_photos_intervention ON photos(intervention_id, day_offset);
-CREATE INDEX idx_photos_flagged ON photos(intervention_id, is_flagged) WHERE is_flagged = true;
+CREATE INDEX cap_idx_photos_intervention ON cap_photos(intervention_id, day_offset);
+CREATE INDEX cap_idx_photos_flagged ON cap_photos(intervention_id, is_flagged) WHERE is_flagged = true;
 
 -- ============================================================
--- 13. CHAT MESSAGES
+-- 13. cap_chat_messages
 -- ============================================================
-CREATE TABLE chat_messages (
+CREATE TABLE cap_chat_messages (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id     uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
+    intervention_id     uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
     role                text NOT NULL CHECK (role IN ('patient', 'ai_agent', 'staff')),
     content             text NOT NULL,
     metadata            jsonb DEFAULT '{}',
@@ -263,17 +264,17 @@ CREATE TABLE chat_messages (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_chat_intervention ON chat_messages(intervention_id, created_at);
-CREATE INDEX idx_chat_escalated ON chat_messages(intervention_id, is_escalated)
+CREATE INDEX cap_idx_chat_intervention ON cap_chat_messages(intervention_id, created_at);
+CREATE INDEX cap_idx_chat_escalated ON cap_chat_messages(intervention_id, is_escalated)
     WHERE is_escalated = true;
 
 -- ============================================================
--- 14. FOLLOW-UP APPOINTMENTS
+-- 14. cap_follow_up_appointments
 -- ============================================================
-CREATE TABLE follow_up_appointments (
+CREATE TABLE cap_follow_up_appointments (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id     uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
-    clinic_id           uuid NOT NULL REFERENCES clinics(id),
+    intervention_id     uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
+    clinic_id           uuid NOT NULL REFERENCES cap_clinics(id),
     appointment_type    text NOT NULL
                         CHECK (appointment_type IN ('cure_24h', 'cure_72h', 'photo_review_7d',
                                                      'photo_review_10d', 'follow_up_1m', 'follow_up_3m',
@@ -290,17 +291,17 @@ CREATE TABLE follow_up_appointments (
     updated_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_followups_intervention ON follow_up_appointments(intervention_id);
-CREATE INDEX idx_followups_clinic_date ON follow_up_appointments(clinic_id, scheduled_date);
+CREATE INDEX cap_idx_followups_intervention ON cap_follow_up_appointments(intervention_id);
+CREATE INDEX cap_idx_followups_clinic_date ON cap_follow_up_appointments(clinic_id, scheduled_date);
 
 -- ============================================================
--- 15. CLINIC CALENDAR
+-- 15. cap_clinic_calendar
 -- ============================================================
-CREATE TABLE clinic_calendar (
+CREATE TABLE cap_clinic_calendar (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    clinic_id           uuid NOT NULL REFERENCES clinics(id),
-    intervention_id     uuid REFERENCES interventions(id),
-    follow_up_id        uuid REFERENCES follow_up_appointments(id),
+    clinic_id           uuid NOT NULL REFERENCES cap_clinics(id),
+    intervention_id     uuid REFERENCES cap_interventions(id),
+    follow_up_id        uuid REFERENCES cap_follow_up_appointments(id),
     title               text NOT NULL,
     event_type          text NOT NULL
                         CHECK (event_type IN ('surgery', 'follow_up', 'consultation',
@@ -318,16 +319,16 @@ CREATE TABLE clinic_calendar (
     updated_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_calendar_clinic_date ON clinic_calendar(clinic_id, event_date);
-CREATE INDEX idx_calendar_intervention ON clinic_calendar(intervention_id)
+CREATE INDEX cap_idx_calendar_clinic_date ON cap_clinic_calendar(clinic_id, event_date);
+CREATE INDEX cap_idx_calendar_intervention ON cap_clinic_calendar(intervention_id)
     WHERE intervention_id IS NOT NULL;
 
 -- ============================================================
--- 16. NOTIFICATIONS
+-- 16. cap_notifications
 -- ============================================================
-CREATE TABLE notifications (
+CREATE TABLE cap_notifications (
     id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    intervention_id     uuid NOT NULL REFERENCES interventions(id) ON DELETE CASCADE,
+    intervention_id     uuid NOT NULL REFERENCES cap_interventions(id) ON DELETE CASCADE,
     channel             text NOT NULL DEFAULT 'in_app'
                         CHECK (channel IN ('push', 'whatsapp', 'email', 'in_app')),
     title               text NOT NULL,
@@ -344,15 +345,15 @@ CREATE TABLE notifications (
     created_at          timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_notif_intervention ON notifications(intervention_id, day_offset);
-CREATE INDEX idx_notif_pending ON notifications(scheduled_for) WHERE sent_at IS NULL;
+CREATE INDEX cap_idx_notif_intervention ON cap_notifications(intervention_id, day_offset);
+CREATE INDEX cap_idx_notif_pending ON cap_notifications(scheduled_for) WHERE sent_at IS NULL;
 
 -- ============================================================
--- 17. PATIENT CONSENTS (RGPD)
+-- 17. cap_patient_consents
 -- ============================================================
-CREATE TABLE patient_consents (
+CREATE TABLE cap_patient_consents (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    patient_id      uuid NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+    patient_id      uuid NOT NULL REFERENCES cap_patients(id) ON DELETE CASCADE,
     consent_type    text NOT NULL
                     CHECK (consent_type IN ('data_processing', 'photo_ai_analysis',
                                             'data_sharing_clinic', 'marketing')),
@@ -366,14 +367,14 @@ CREATE TABLE patient_consents (
     created_at      timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_consents_patient ON patient_consents(patient_id);
+CREATE INDEX cap_idx_consents_patient ON cap_patient_consents(patient_id);
 
 -- ============================================================
--- 18. DATA ACCESS LOGS (auditoria RGPD)
+-- 18. cap_data_access_logs
 -- ============================================================
-CREATE TABLE data_access_logs (
+CREATE TABLE cap_data_access_logs (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    clinic_id       uuid NOT NULL REFERENCES clinics(id),
+    clinic_id       uuid NOT NULL REFERENCES cap_clinics(id),
     actor_type      text NOT NULL CHECK (actor_type IN ('staff', 'system', 'patient')),
     actor_id        uuid,
     action          text NOT NULL
@@ -385,16 +386,16 @@ CREATE TABLE data_access_logs (
     created_at      timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_access_logs_clinic ON data_access_logs(clinic_id, created_at);
-CREATE INDEX idx_access_logs_intervention ON data_access_logs(intervention_id)
+CREATE INDEX cap_idx_access_logs_clinic ON cap_data_access_logs(clinic_id, created_at);
+CREATE INDEX cap_idx_access_logs_intervention ON cap_data_access_logs(intervention_id)
     WHERE intervention_id IS NOT NULL;
 
 -- ============================================================
--- 19. DATA DELETION REQUESTS (derecho supresion RGPD)
+-- 19. cap_data_deletion_requests
 -- ============================================================
-CREATE TABLE data_deletion_requests (
+CREATE TABLE cap_data_deletion_requests (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    patient_id      uuid NOT NULL REFERENCES patients(id),
+    patient_id      uuid NOT NULL REFERENCES cap_patients(id),
     requested_at    timestamptz NOT NULL DEFAULT now(),
     requested_by    text NOT NULL CHECK (requested_by IN ('patient', 'staff')),
     status          text NOT NULL DEFAULT 'pending'
@@ -406,14 +407,14 @@ CREATE TABLE data_deletion_requests (
     created_at      timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_deletion_requests_patient ON data_deletion_requests(patient_id);
-CREATE INDEX idx_deletion_requests_status ON data_deletion_requests(status)
+CREATE INDEX cap_idx_deletion_requests_patient ON cap_data_deletion_requests(patient_id);
+CREATE INDEX cap_idx_deletion_requests_status ON cap_data_deletion_requests(status)
     WHERE status IN ('pending', 'processing');
 
 -- ============================================================
--- VISTA: intervention_timeline (calculo current_day)
+-- VISTA: cap_intervention_timeline
 -- ============================================================
-CREATE OR REPLACE VIEW intervention_timeline AS
+CREATE OR REPLACE VIEW cap_intervention_timeline AS
 SELECT
     i.*,
     (CURRENT_DATE - i.surgery_date) AS current_day,
@@ -424,15 +425,15 @@ SELECT
     p.medical_notes,
     cp.name AS protocol_name,
     cp.intervention_type
-FROM interventions i
-JOIN patients p ON p.id = i.patient_id
-JOIN care_protocols cp ON cp.id = i.protocol_id
+FROM cap_interventions i
+JOIN cap_patients p ON p.id = i.patient_id
+JOIN cap_care_protocols cp ON cp.id = i.protocol_id
 WHERE i.is_active = true;
 
 -- ============================================================
--- TRIGGER: auto-update updated_at
+-- TRIGGER: cap_update_updated_at
 -- ============================================================
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE OR REPLACE FUNCTION cap_update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = now();
@@ -440,15 +441,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_clinics_updated BEFORE UPDATE ON clinics
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER trg_patients_updated BEFORE UPDATE ON patients
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER trg_protocols_updated BEFORE UPDATE ON care_protocols
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER trg_interventions_updated BEFORE UPDATE ON interventions
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER trg_followups_updated BEFORE UPDATE ON follow_up_appointments
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-CREATE TRIGGER trg_calendar_updated BEFORE UPDATE ON clinic_calendar
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER cap_trg_clinics_updated BEFORE UPDATE ON cap_clinics
+    FOR EACH ROW EXECUTE FUNCTION cap_update_updated_at_column();
+CREATE TRIGGER cap_trg_patients_updated BEFORE UPDATE ON cap_patients
+    FOR EACH ROW EXECUTE FUNCTION cap_update_updated_at_column();
+CREATE TRIGGER cap_trg_protocols_updated BEFORE UPDATE ON cap_care_protocols
+    FOR EACH ROW EXECUTE FUNCTION cap_update_updated_at_column();
+CREATE TRIGGER cap_trg_interventions_updated BEFORE UPDATE ON cap_interventions
+    FOR EACH ROW EXECUTE FUNCTION cap_update_updated_at_column();
+CREATE TRIGGER cap_trg_followups_updated BEFORE UPDATE ON cap_follow_up_appointments
+    FOR EACH ROW EXECUTE FUNCTION cap_update_updated_at_column();
+CREATE TRIGGER cap_trg_calendar_updated BEFORE UPDATE ON cap_clinic_calendar
+    FOR EACH ROW EXECUTE FUNCTION cap_update_updated_at_column();

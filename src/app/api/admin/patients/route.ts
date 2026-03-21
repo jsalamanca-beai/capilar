@@ -5,7 +5,7 @@ export async function GET() {
   const supabase = createServiceClient();
 
   const { data, error } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .order("surgery_date", { ascending: false });
 
@@ -17,13 +17,13 @@ export async function GET() {
   const enriched = await Promise.all(
     (data || []).map(async (inv) => {
       const { count: pendingPhotos } = await supabase
-        .from("photos")
+        .from("cap_photos")
         .select("*", { count: "exact", head: true })
         .eq("intervention_id", inv.id)
         .is("staff_reviewed_at", null);
 
       const { count: escalatedChats } = await supabase
-        .from("chat_messages")
+        .from("cap_chat_messages")
         .select("*", { count: "exact", head: true })
         .eq("intervention_id", inv.id)
         .eq("is_escalated", true)
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   // Create patient
   const { data: patient, error: patientError } = await supabase
-    .from("patients")
+    .from("cap_patients")
     .insert({ clinic_id: clinicId, first_name, last_name, email, phone })
     .select()
     .single();
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 
   // Create intervention
   const { data: intervention, error: intError } = await supabase
-    .from("interventions")
+    .from("cap_interventions")
     .insert({
       patient_id: patient.id,
       protocol_id: protocolId,

@@ -9,7 +9,7 @@ export async function GET(
   const supabase = createServiceClient();
 
   const { data: photos } = await supabase
-    .from("photos")
+    .from("cap_photos")
     .select("*")
     .eq("intervention_id", id)
     .order("created_at", { ascending: false });
@@ -35,7 +35,7 @@ export async function PATCH(
   const supabase = createServiceClient();
 
   const { error } = await supabase
-    .from("photos")
+    .from("cap_photos")
     .update({
       staff_review,
       staff_reviewed_at: new Date().toISOString(),

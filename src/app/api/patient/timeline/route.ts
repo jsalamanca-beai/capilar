@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   // Get intervention with protocol
   const { data: intervention } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("*")
     .eq("id", interventionId)
     .single();
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
   // Get tasks for current day
   const { data: tasks } = await supabase
-    .from("protocol_task_items")
+    .from("cap_protocol_task_items")
     .select("*")
     .eq("protocol_id", intervention.protocol_id)
     .eq("is_active", true)
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
   // Get completions for today
   const { data: completions } = await supabase
-    .from("task_completions")
+    .from("cap_task_completions")
     .select("*")
     .eq("intervention_id", interventionId)
     .eq("day_offset", currentDay);

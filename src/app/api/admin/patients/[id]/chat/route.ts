@@ -9,7 +9,7 @@ export async function GET(
   const supabase = createServiceClient();
 
   const { data: messages } = await supabase
-    .from("chat_messages")
+    .from("cap_chat_messages")
     .select("*")
     .eq("intervention_id", id)
     .order("created_at", { ascending: true });
@@ -31,12 +31,12 @@ export async function POST(
   const supabase = createServiceClient();
 
   const { data: intervention } = await supabase
-    .from("intervention_timeline")
+    .from("cap_intervention_timeline")
     .select("current_day")
     .eq("id", id)
     .single();
 
-  const { error } = await supabase.from("chat_messages").insert({
+  const { error } = await supabase.from("cap_chat_messages").insert({
     intervention_id: id,
     role: "staff",
     content: content.trim(),
@@ -49,7 +49,7 @@ export async function POST(
 
   // Mark escalations as read
   await supabase
-    .from("chat_messages")
+    .from("cap_chat_messages")
     .update({ read_at: new Date().toISOString() })
     .eq("intervention_id", id)
     .eq("is_escalated", true)

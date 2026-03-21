@@ -14,14 +14,14 @@ export async function POST(request: NextRequest) {
   if (undo) {
     // Remove completion
     await supabase
-      .from("task_completions")
+      .from("cap_task_completions")
       .delete()
       .eq("intervention_id", interventionId)
       .eq("protocol_task_item_id", taskId)
       .eq("day_offset", dayOffset);
   } else {
     // Upsert completion
-    await supabase.from("task_completions").upsert(
+    await supabase.from("cap_task_completions").upsert(
       {
         intervention_id: interventionId,
         protocol_task_item_id: taskId,
