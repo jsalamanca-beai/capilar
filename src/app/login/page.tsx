@@ -101,8 +101,8 @@ function LoginForm() {
         setCode(["", "", "", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
-    } catch {
-      setError("Error de conexion. Intentalo de nuevo.");
+    } catch (err) {
+      setError(`Error de conexion: ${err instanceof Error ? err.message : "Intentalo de nuevo."}`);
     } finally {
       setLoading(false);
     }
