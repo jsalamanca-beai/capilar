@@ -12,16 +12,29 @@ export default function EmergencyPage() {
   return (
     <div className="max-w-lg mx-auto px-4 py-4">
       <h1 className="text-gold text-xs uppercase tracking-[3px] font-light mb-1">
-        Contacto de emergencia
+        Tu equipo de apoyo
       </h1>
       <p className="text-text-muted text-sm mb-6">
-        Clinica Capilex Madrid
+        Tienes varias opciones segun tu necesidad
       </p>
 
-      {/* Emergency call */}
+      {/* Chat FIRST — lowest friction, 24/7 */}
+      <a
+        href="/chat"
+        className="card p-5 flex items-center gap-4 mb-3 border-l-2 border-l-gold-border hover:bg-gold-subtle transition-colors"
+      >
+        <span className="text-3xl">💬</span>
+        <div>
+          <p className="text-text-white font-medium">Pregunta al asistente IA</p>
+          <p className="text-text-muted text-xs">Disponible ahora mismo, 24 horas</p>
+        </div>
+        <span className="ml-auto text-gold text-xs">→</span>
+      </a>
+
+      {/* Call SECOND */}
       <a
         href="tel:+34XXXXXXXXX"
-        className="card p-5 flex items-center gap-4 mb-3 border-l-2 border-l-danger hover:bg-danger-bg transition-colors"
+        className="card p-5 flex items-center gap-4 mb-3 border-l-2 border-l-[#333] hover:bg-danger-bg transition-colors"
       >
         <span className="text-3xl">📞</span>
         <div>

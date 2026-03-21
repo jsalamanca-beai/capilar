@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePatient } from "@/lib/hooks/usePatient";
 import { getCurrentPhase } from "@/lib/timeline/compute-phase";
+import { PHASE_REASSURANCE } from "@/lib/content/phase-reassurance";
 import type { ProtocolTaskItem, TaskCompletion } from "@/lib/types/database";
 
 export default function ChecklistPage() {
@@ -85,23 +86,37 @@ export default function ChecklistPage() {
         <p className="text-text-muted text-sm">
           {phase?.title} &mdash; Dia {currentDay < 0 ? currentDay : `+${currentDay}`}
         </p>
+        {phase && PHASE_REASSURANCE[phase.key] && (
+          <p className="text-gold-dim text-[11px] leading-relaxed mt-1">
+            {PHASE_REASSURANCE[phase.key]}
+          </p>
+        )}
       </div>
 
-      {/* Progress bar */}
-      <div className="card p-3 mb-4">
-        <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-text-muted">Progreso del dia</span>
-          <span className="text-gold">
-            {completedCount}/{tasks.length}
-          </span>
+      {/* Progress bar / Completion celebration */}
+      {progress === 1 && tasks.length > 0 ? (
+        <div className="card p-3 mb-4 border-gold-border bg-gold-subtle text-center">
+          <p className="text-gold text-sm font-medium">Dia completado</p>
+          <p className="text-text-muted text-xs mt-0.5">
+            Has seguido el protocolo al 100%. Eso marca la diferencia.
+          </p>
         </div>
-        <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gold rounded-full transition-all duration-500"
-            style={{ width: `${progress * 100}%` }}
-          />
+      ) : (
+        <div className="card p-3 mb-4">
+          <div className="flex justify-between text-xs mb-1.5">
+            <span className="text-text-muted">Progreso del dia</span>
+            <span className="text-gold">
+              {completedCount}/{tasks.length}
+            </span>
+          </div>
+          <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gold rounded-full transition-all duration-500"
+              style={{ width: `${progress * 100}%` }}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Loading */}
       {loading && (

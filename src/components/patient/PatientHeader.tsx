@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { usePatient } from "@/lib/hooks/usePatient";
 import { getCurrentPhase } from "@/lib/timeline/compute-phase";
 
@@ -31,11 +32,21 @@ export default function PatientHeader() {
             className="opacity-80 logo-dark"
           />
         </div>
-        <div className="text-right">
-          <p className="text-gold text-sm font-medium">{dayLabel}</p>
-          {phase && (
-            <span className="badge text-[9px]">{phase.badge}</span>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-gold text-sm font-medium">{dayLabel}</p>
+            {phase && (
+              <span className="badge text-[9px]">{phase.badge}</span>
+            )}
+          </div>
+          <Link
+            href="/emergency"
+            className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center
+              text-text-muted hover:border-danger-border hover:text-danger transition-colors"
+            aria-label="Contacto de emergencia"
+          >
+            <span className="text-sm">🆘</span>
+          </Link>
         </div>
       </div>
     </header>
