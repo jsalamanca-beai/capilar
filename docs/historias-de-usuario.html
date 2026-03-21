@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historias de Usuario - Capilex Patient App</title>
+    <style>
+        :root {
+            --gold: rgb(231, 184, 97);
+            --gold-light: rgba(231, 184, 97, 0.15);
+            --gold-subtle: rgba(231, 184, 97, 0.08);
+            --gold-border: rgba(231, 184, 97, 0.25);
+            --gold-dim: rgba(231, 184, 97, 0.5);
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --text: #d4d4d4;
+            --text-muted: #888888;
+            --white: #ffffff;
+            --success: #27ae60;
+            --success-bg: rgba(39, 174, 96, 0.1);
+            --success-border: rgba(39, 174, 96, 0.25);
+            --blue: #2980b9;
+            --blue-bg: rgba(41, 128, 185, 0.1);
+            --blue-border: rgba(41, 128, 185, 0.25);
+            --purple: #9b59b6;
+            --purple-bg: rgba(155, 89, 182, 0.1);
+            --purple-border: rgba(155, 89, 182, 0.25);
+            --danger: #c0392b;
+            --danger-bg: rgba(192, 57, 43, 0.1);
+            --danger-border: rgba(192, 57, 43, 0.25);
+            --orange: #e67e22;
+            --orange-bg: rgba(230, 126, 34, 0.1);
+            --orange-border: rgba(230, 126, 34, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .header { background: #000; padding: 40px 20px 30px; text-align: center; border-bottom: 2px solid var(--gold); }
+        .header h1 { font-size: 1.6em; color: var(--gold); letter-spacing: 3px; font-weight: 300; text-transform: uppercase; margin-bottom: 4px; }
+        .header p { color: var(--text-muted); font-size: 0.9em; letter-spacing: 1px; }
+        .nav { background: #000; padding: 12px 20px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .nav a { color: var(--text-muted); text-decoration: none; padding: 7px 14px; border-radius: 4px; font-size: 0.8em; border: 1px solid #222; transition: all 0.3s; }
+        .nav a:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+        .container { max-width: 920px; margin: 0 auto; padding: 20px 16px; }
+        .divider { text-align: center; padding: 28px 0 14px; position: relative; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold-border), transparent); }
+        .divider span { background: var(--bg); padding: 0 18px; position: relative; font-size: 0.78em; color: var(--gold); text-transform: uppercase; letter-spacing: 4px; font-weight: 300; }
+
+        /* Story card */
+        .story {
+            margin-bottom: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid #1a1a1a;
+            transition: border-color 0.3s;
+        }
+        .story:hover { border-color: #333; }
+        .story-header {
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .story-id {
+            min-width: 38px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.68em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .story-header h3 { font-size: 0.95em; color: var(--white); font-weight: 500; flex: 1; }
+        .story-body { padding: 14px 18px; }
+        .story-quote {
+            font-style: italic;
+            color: var(--text);
+            font-size: 0.9em;
+            padding-left: 14px;
+            border-left: 2px solid var(--gold-border);
+            margin-bottom: 12px;
+        }
+        .story-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .story-detail {
+            font-size: 0.8em;
+            padding: 6px 10px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 4px;
+        }
+        .story-detail strong { color: var(--gold); font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+        .story-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 10px; }
+        .tag { font-size: 0.68em; padding: 2px 8px; border-radius: 3px; }
+
+        /* Persona colors */
+        .persona-paciente .story-id { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+        .persona-paciente .story-quote { border-left-color: var(--blue-border); }
+        .persona-clinica .story-id { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+        .persona-clinica .story-quote { border-left-color: var(--purple-border); }
+        .persona-cirujano .story-id { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .persona-cirujano .story-quote { border-left-color: var(--success-border); }
+
+        /* Priority tags */
+        .tag-must { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .tag-should { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+        .tag-could { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+        .tag-feature { background: var(--gold-subtle); color: var(--gold); border: 1px solid var(--gold-border); }
+
+        /* Status */
+        .status { font-size: 0.7em; padding: 2px 8px; border-radius: 3px; margin-left: auto; flex-shrink: 0; }
+        .status-done { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .status-progress { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+        .status-pending { background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid #333; }
+
+        /* Summary table */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 4px; margin: 10px 0; }
+        th { text-align: left; padding: 8px 14px; color: var(--gold); font-size: 0.72em; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 400; }
+        td { padding: 10px 14px; background: rgba(255,255,255,0.03); font-size: 0.85em; }
+        tr td:first-child { border-radius: 6px 0 0 6px; border-left: 2px solid var(--gold-border); }
+        tr td:last-child { border-radius: 0 6px 6px 0; }
+
+        .footer { background: #000; border: 1px solid var(--gold-border); border-radius: 8px; padding: 20px; text-align: center; margin: 28px 0; }
+        .footer p { color: var(--gold); font-weight: 400; font-size: 0.9em; }
+        .footer small { color: var(--text-muted); font-size: 0.78em; }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.2em; }
+            .story-details { grid-template-columns: 1fr; }
+            .nav a { padding: 5px 10px; font-size: 0.73em; }
+            table { display: block; overflow-x: auto; white-space: nowrap; font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Historias de Usuario</h1>
+    <p>Validacion funcional &mdash; Capilex Patient App</p>
+</div>
+
+<nav class="nav">
+    <a href="#paciente-preop">Paciente Pre-Op</a>
+    <a href="#paciente-postop">Paciente Post-Op</a>
+    <a href="#paciente-chat">Paciente Chat/IA</a>
+    <a href="#clinica-gestion">Clinica Gestion</a>
+    <a href="#clinica-seguimiento">Clinica Seguimiento</a>
+    <a href="#resumen">Resumen</a>
+</nav>
+
+<div class="container">
+
+    <!-- ============================================ -->
+    <div class="divider" id="paciente-preop"><span>Paciente &mdash; Preoperatorio</span></div>
+    <!-- ============================================ -->
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P01</div>
+            <h3>Acceder a la app con mi codigo</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero acceder a la app con el codigo que me dio la clinica, sin tener que registrarme ni recordar contrasenas, para que sea rapido y sencillo.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Introduzco 8 caracteres y accedo directamente. Si el codigo es incorrecto me dice que contacte con la clinica.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Login con codigo unico, JWT en cookie, rate limiting contra fuerza bruta.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Login</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P02</div>
+            <h3>Saber exactamente que debo hacer hoy</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero ver al entrar en la app exactamente en que dia estoy (faltan X dias / dia X postoperatorio), en que fase me encuentro, y que tareas tengo hoy, para no sentirme perdido con tanta informacion.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Veo un contador grande de dias, mi fase actual resaltada en el timeline, y accesos rapidos a tareas, medicacion y compras.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Dashboard con DayCounter, TimelineView, quick actions.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Dashboard</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P03</div>
+            <h3>Checklist para no olvidarme de nada</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero tener un checklist diario con todas las tareas que debo hacer hoy (hidratar, lavar, no fumar...), poder marcarlas como hechas, y ver mi progreso del dia, para sentir que tengo el control de mi recuperacion.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Veo las tareas del dia ordenadas por prioridad. Las criticas tienen badge rojo. Puedo marcar/desmarcar. Barra de progreso se actualiza.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Checklist interactivo, tareas filtradas por dia postoperatorio, persistencia en BD.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Checklist</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P04</div>
+            <h3>Saber que comprar y donde</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero tener una lista de compras clara con los productos que necesito, para que sirve cada uno, y donde los puedo comprar (farmacia, supermercado, Amazon...), para no tener que buscar por mi cuenta.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Lista separada por imprescindibles y recomendados. Cada item tiene nombre, descripcion y lugar de compra. Puedo marcar los que ya compre.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Shopping list con checkboxes, progreso de compras.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Shopping</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P05</div>
+            <h3>Controlar mi medicacion sin confundirme</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero ver claramente que medicamento tomar, a que hora, con que comida, cuantos dias me quedan, y cuales ya he terminado, para no confundirme entre el antibiotico, el antiinflamatorio y el protector gastrico.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Cada medicamento muestra dosis, frecuencia, comidas, barra progreso, y estado (activo/completado). Incluye instrucciones especiales.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Medication tracker con datos del protocolo Capilex.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Medicacion</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider" id="paciente-postop"><span>Paciente &mdash; Postoperatorio y fotos</span></div>
+    <!-- ============================================ -->
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P06</div>
+            <h3>Subir fotos y saber si todo va bien</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero hacer una foto de mi cabeza con el movil, subirla, y que la IA me diga al instante si mi recuperacion va bien o si deberia preocuparme, para no estar angustiado hasta que me vea el medico.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Selecciono zona (frontal, superior, donante...), hago foto o elijo de galeria, la subo, y en segundos veo un analisis con 6 parametros, recomendaciones, y si debo contactar clinica.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>PhotoCapture + GPT-4o Vision + scores visuales + notificacion Telegram a clinica.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Fotos IA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P07</div>
+            <h3>Ver la evolucion de mis fotos</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero ver todas mis fotos ordenadas por fecha, con el analisis IA de cada una, para comparar como evoluciono dia a dia y sentir que avanzo.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Galeria con thumbnails, indicador de riesgo por colores (verde/amarillo/rojo), modal con foto grande + analisis completo, estado "revisada por clinica".</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Photo gallery con signed URLs, filtro por zona.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-should">SHOULD</span>
+                <span class="tag tag-feature">Galeria</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P08</div>
+            <h3>Recibir recordatorios sin tener que abrir la app</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero recibir recordatorios automaticos en mi movil (app o WhatsApp) de cuando tengo que hidratar, tomar medicacion, enviar fotos, o cambiar de protocolo de lavado, para no tener que estar pendiente yo de todo.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Recibo notificaciones en los momentos clave: cada 30 min para hidratar (dias 1-15), horarios de medicacion, dias 7 y 10 para fotos, dia 5 para nuevo lavado, dia 15 para fin protocolo.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Notification templates + Vercel Cron + in-app notifications (+ WhatsApp futuro).</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Notificaciones</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P09</div>
+            <h3>Contactar rapido con la clinica si algo va mal</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero poder llamar a la clinica con un solo toque, saber cuando deberia alarmarme (sintomas de peligro), y tener acceso al email para recetas, para sentirme seguro de que si pasa algo tengo apoyo inmediato.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Boton "llamar" directo, lista de sintomas de alarma, email de recetas, acceso al chat IA 24/7.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Emergency page con tel:, mailto:, lista de senales de alarma.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Emergencia</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider" id="paciente-chat"><span>Paciente &mdash; Chat con IA</span></div>
+    <!-- ============================================ -->
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P10</div>
+            <h3>Preguntar dudas medicas a cualquier hora</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero poder preguntar "¿es normal que me pique tanto?" a las 3 de la manana y recibir una respuesta fiable basada en el protocolo de mi clinica, en vez de buscar en Google y asustarme con foros.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>El chat responde en espanol, adaptado a mi dia postoperatorio, con informacion del protocolo Capilex. Si es algo grave, me dice que contacte la clinica.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Experto Quirurgico (surgery_expert) con protocolo completo embedido.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Chat IA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P11</div>
+            <h3>Saber que puedo y que no puedo hacer</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero preguntar "¿puedo ir al gimnasio?" o "¿puedo beber cerveza?" y que me diga claramente SI o NO segun el dia en que estoy, con la razon, para no poner en riesgo mi trasplante por desconocimiento.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Responde con SI/NO + razon + cuando podre hacerlo. Ej: "No, el ejercicio esta prohibido hasta el dia 15 porque aumenta la presion sanguinea en la cabeza".</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Risk Prevention Agent con matriz de restricciones por dia.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Chat IA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P12</div>
+            <h3>Sentirme acompanado durante el shedding</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero que cuando me angustie porque se me cae el pelo trasplantado (shedding), alguien me explique que es normal, que le pasa al 95% de pacientes, y que los foliculos estan vivos, para no pensar que la operacion ha fallado.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>El agente detecta ansiedad por shedding, normaliza la experiencia con datos, da cronologia de resultados (3-18 meses), y motiva. Si la ansiedad es extrema, escala.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Patient Experience Agent con gestion de shedding como prioridad.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Chat IA</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P13</div>
+            <h3>Que si es una emergencia, me atienda una persona</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero que si escribo algo preocupante como "tengo fiebre y pus", el sistema no intente tranquilizarme con respuestas genericas, sino que me diga que un humano de la clinica va a contactarme, para sentir que ante algo grave hay personas reales detras.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>El router detecta ESCALATE, muestra mensaje de escalado, notifica al equipo via Telegram con urgencia ALTA y el mensaje del paciente.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Escalation protocol + Telegram notifyEscalation.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Escalado</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-paciente">
+        <div class="story-header">
+            <div class="story-id">P14</div>
+            <h3>No tener que saber con que experto hablar</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como paciente, quiero simplemente escribir mi duda y que el sistema sepa automaticamente si es una pregunta medica, emocional o de restricciones, sin tener que elegir yo un menu, para que sea tan natural como hablar con alguien.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Escribo en un unico chat. El router clasifica automaticamente. Veo un badge discreto que indica que agente respondio (Experto Quirurgico / Experiencia / Riesgos).</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Router GPT-4o-mini + 3 agentes + AgentBadge en UI.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-should">SHOULD</span>
+                <span class="tag tag-feature">UX Chat</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider" id="clinica-gestion"><span>Responsable de clinica &mdash; Gestion</span></div>
+    <!-- ============================================ -->
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C01</div>
+            <h3>Dar acceso rapido a cada paciente nuevo</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero generar un codigo de acceso unico para cada paciente con un clic, y poder enviarselo por WhatsApp o email, para que empiece a usar la app sin complicaciones tecnicas.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>En el panel admin, creo un paciente con nombre + fecha cirugia, se genera un codigo de 8 chars y un link directo. Puedo copiar el link y enviarselo.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Admin panel: CodeGenerator + API /api/admin/codes/generate.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C02</div>
+            <h3>Ver de un vistazo como estan todos mis pacientes</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero ver un dashboard con todos mis pacientes activos, en que dia postoperatorio esta cada uno, quien tiene fotos pendientes de revisar, y si hay algun escalado sin resolver, para no dejar a ningun paciente desatendido.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Lista de pacientes con: nombre, dia postop, estado, ultima actividad, badge si tiene fotos sin revisar o escalados pendientes. Filtrable y ordenable.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Admin dashboard + PatientTable.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C03</div>
+            <h3>Revisar las fotos con el analisis IA antes de opinar</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero ver las fotos que sube cada paciente junto con el analisis automatico de la IA (scores de cicatrizacion, infeccion, injertos...), poder anadir mis notas, y marcar la foto como revisada, para tener un segundo par de ojos antes de dar mi opinion profesional.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Galeria de fotos del paciente con analisis IA al lado. Puedo escribir notas y marcar "revisada". El paciente ve que la clinica ha revisado su foto.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Admin photo review: PhotoReviewCard + API update notas + staff_reviewed_at.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C04</div>
+            <h3>Responder al paciente en su chat cuando la IA escala</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero ver el historial del chat del paciente con la IA, entender que preguntas hizo, y poder responder directamente en el mismo chat como "staff de la clinica", para que el paciente no tenga que repetir su problema por telefono.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Veo todo el historial con indicador de agente. Los mensajes escalados estan resaltados. Puedo escribir una respuesta que le llega al paciente como "Equipo Capilex".</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Admin chat thread: ver historial + responder con role=staff.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Admin Panel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider" id="clinica-seguimiento"><span>Responsable de clinica &mdash; Seguimiento y alertas</span></div>
+    <!-- ============================================ -->
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C05</div>
+            <h3>Recibir alertas en Telegram sin abrir el panel</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero recibir en el grupo de Telegram del equipo una alerta inmediata cuando un paciente sube una foto con riesgo, cuando la IA escala una conversacion, o cuando un paciente tiene la cirugia en menos de 7 dias y tiene pendientes, para reaccionar rapido sin estar mirando el panel todo el dia.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Recibo alertas con nombre del paciente, dia, nivel de riesgo, y razon. El resumen diario llega a las 8:00 con vision de todos los pacientes.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Telegram bot con 6 tipos de notificacion + cron resumen diario.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Telegram</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C06</div>
+            <h3>Saber si un paciente no esta siguiendo el protocolo</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero saber si un paciente no ha abierto la app en 3 dias, no ha subido las fotos del dia 7 o 10, o no ha marcado ninguna tarea como completada, para poder llamarle proactivamente y asegurar que esta bien.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>En el dashboard veo un indicador de "paciente inactivo" o "fotos pendientes". Recibo alerta en Telegram si un paciente no sube fotos en dia clave.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Cron que detecta inactividad + notifyMissingPhotos en Telegram.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-should">SHOULD</span>
+                <span class="tag tag-feature">Seguimiento</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C07</div>
+            <h3>Ver el calendario de cirugias y citas de seguimiento</h3>
+            <span class="status status-pending">Pendiente</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero ver un calendario con las cirugias programadas, las citas de cura a las 24/72h, y las revisiones de seguimiento (1 mes, 3 meses, 6 meses, 12 meses), para organizar la agenda del equipo y no perder ninguna cita.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Vista calendario mensual/semanal con eventos coloreados por tipo. Click en evento muestra detalle del paciente.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Admin calendar: clinic_calendar + follow_up_appointments.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-could">COULD</span>
+                <span class="tag tag-feature">Calendario</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C08</div>
+            <h3>Cumplir con la proteccion de datos sin complicaciones</h3>
+            <span class="status status-progress">En progreso</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero que la app gestione automaticamente los consentimientos RGPD, registre quien accede a los datos de cada paciente, y permita borrar todos los datos de un paciente si lo solicita, para cumplir la ley sin tener que contratar un consultor de proteccion de datos para cada caso.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Consentimiento al primer acceso. Logs de auditoria automaticos. Boton "eliminar datos" que borra todo (fotos, chat, logs). Politicas de retencion configurables.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Tablas RGPD (patient_consents, data_access_logs, data_deletion_requests). Fotos cifradas, datos anonimizados para IA.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">RGPD</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C09</div>
+            <h3>Que un paciente pueda tener mas de una intervencion</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero que si un paciente vuelve para un retoque o una segunda sesion, pueda tener su propia linea temporal nueva sin perder los datos de la primera cirugia, para llevar un historial completo de cada paciente.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Creo una nueva intervencion para el mismo paciente. Tiene su propio codigo de acceso, fecha de cirugia, y timeline independiente. Los datos antiguos permanecen.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>Modelo BD: patients (1) → interventions (N). Todo el tracking va por intervention_id.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-must">MUST</span>
+                <span class="tag tag-feature">Modelo datos</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="story persona-clinica">
+        <div class="story-header">
+            <div class="story-id">C10</div>
+            <h3>Personalizar el protocolo segun el tipo de cirugia</h3>
+            <span class="status status-done">Hecho</span>
+        </div>
+        <div class="story-body">
+            <div class="story-quote">Yo como responsable de clinica, quiero poder tener diferentes protocolos de cuidados segun el tipo de intervencion (FUE estandar, mega sesion, DHI, PRP...), para que cada paciente reciba las instrucciones exactas de su caso, no unas genericas.</div>
+            <div class="story-details">
+                <div class="story-detail"><strong>Criterio de aceptacion</strong>Puedo crear protocolos diferentes con tareas, medicacion y compras especificas. Al crear una intervencion, selecciono que protocolo aplica.</div>
+                <div class="story-detail"><strong>Funcionalidad</strong>care_protocols + protocol_task_items + protocol_medication_items + protocol_shopping_items. Cada intervencion referencia un protocol_id.</div>
+            </div>
+            <div class="story-tags">
+                <span class="tag tag-should">SHOULD</span>
+                <span class="tag tag-feature">Protocolos</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider" id="resumen"><span>Resumen de estado</span></div>
+    <!-- ============================================ -->
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Historia</th>
+                <th>Persona</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>P01</td><td>Acceso con codigo</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P02</td><td>Dashboard dia actual</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P03</td><td>Checklist diario</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P04</td><td>Lista de compras</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P05</td><td>Tracker medicacion</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P06</td><td>Subir fotos + analisis IA</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P07</td><td>Galeria de fotos</td><td>Paciente</td><td>SHOULD</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P08</td><td>Notificaciones push</td><td>Paciente</td><td>MUST</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>P09</td><td>Contacto emergencia</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P10</td><td>Chat dudas medicas 24/7</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P11</td><td>"¿Puedo hacer X?"</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P12</td><td>Acompanamiento shedding</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P13</td><td>Escalado a humano</td><td>Paciente</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>P14</td><td>Chat sin elegir experto</td><td>Paciente</td><td>SHOULD</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>C01</td><td>Generar codigo acceso</td><td>Clinica</td><td>MUST</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>C02</td><td>Dashboard pacientes</td><td>Clinica</td><td>MUST</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>C03</td><td>Revisar fotos + IA</td><td>Clinica</td><td>MUST</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>C04</td><td>Responder chat paciente</td><td>Clinica</td><td>MUST</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>C05</td><td>Alertas Telegram</td><td>Clinica</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>C06</td><td>Detectar inactividad</td><td>Clinica</td><td>SHOULD</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>C07</td><td>Calendario cirugias/citas</td><td>Clinica</td><td>COULD</td><td style="color:var(--text-muted)">Pendiente</td></tr>
+            <tr><td>C08</td><td>Cumplimiento RGPD</td><td>Clinica</td><td>MUST</td><td style="color:var(--orange)">En progreso</td></tr>
+            <tr><td>C09</td><td>Multiples intervenciones</td><td>Clinica</td><td>MUST</td><td style="color:var(--success)">Hecho</td></tr>
+            <tr><td>C10</td><td>Protocolos personalizados</td><td>Clinica</td><td>SHOULD</td><td style="color:var(--success)">Hecho</td></tr>
+        </tbody>
+    </table>
+
+    <div style="margin:16px 0; padding:16px 20px; border-radius:8px; background:var(--gold-subtle); border:1px solid var(--gold-border);">
+        <p style="font-size:0.9em; color:var(--gold); font-weight:500; margin-bottom:8px;">Progreso global: 16 de 24 historias completadas (67%)</p>
+        <div style="height:8px; background:#1a1a1a; border-radius:4px; overflow:hidden;">
+            <div style="width:67%; height:100%; background:var(--gold); border-radius:4px;"></div>
+        </div>
+        <p style="font-size:0.78em; color:var(--text-muted); margin-top:8px;">Pendiente: Panel admin (C01-C04), notificaciones paciente (P08), deteccion inactividad (C06), calendario (C07), RGPD completo (C08).</p>
+    </div>
+
+    <div class="footer">
+        <p>Capilex Madrid &mdash; Historias de usuario v1.0</p>
+        <small>Documento de validacion funcional. Prioridades MoSCoW: MUST / SHOULD / COULD.</small>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casos de Test - Capilex Patient App</title>
+    <style>
+        :root {
+            --gold: rgb(231, 184, 97); --gold-light: rgba(231, 184, 97, 0.15); --gold-subtle: rgba(231, 184, 97, 0.08);
+            --gold-border: rgba(231, 184, 97, 0.25); --gold-dim: rgba(231, 184, 97, 0.5);
+            --bg: #0a0a0a; --bg-card: #111111; --text: #d4d4d4; --text-muted: #888888; --white: #ffffff;
+            --success: #27ae60; --success-bg: rgba(39, 174, 96, 0.1); --success-border: rgba(39, 174, 96, 0.25);
+            --danger: #c0392b; --danger-bg: rgba(192, 57, 43, 0.1); --danger-border: rgba(192, 57, 43, 0.25);
+            --blue: #2980b9; --blue-bg: rgba(41, 128, 185, 0.1); --blue-border: rgba(41, 128, 185, 0.25);
+            --orange: #e67e22; --orange-bg: rgba(230, 126, 34, 0.1); --orange-border: rgba(230, 126, 34, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .header { background: #000; padding: 35px 20px 25px; text-align: center; border-bottom: 2px solid var(--gold); }
+        .header h1 { font-size: 1.5em; color: var(--gold); letter-spacing: 3px; font-weight: 300; text-transform: uppercase; margin-bottom: 4px; }
+        .header p { color: var(--text-muted); font-size: 0.88em; }
+        .container { max-width: 960px; margin: 0 auto; padding: 20px 16px; }
+        .divider { text-align: center; padding: 24px 0 12px; position: relative; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold-border), transparent); }
+        .divider span { background: var(--bg); padding: 0 16px; position: relative; font-size: 0.75em; color: var(--gold); text-transform: uppercase; letter-spacing: 3px; font-weight: 300; }
+
+        .test-case { margin-bottom: 14px; border-radius: 8px; background: var(--bg-card); border: 1px solid #1a1a1a; overflow: hidden; }
+        .test-header { padding: 12px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1a1a1a; background: linear-gradient(135deg, #111, #0d0d0d); }
+        .test-id { min-width: 50px; font-size: 0.7em; font-weight: 600; color: var(--gold); font-family: monospace; }
+        .test-header h3 { font-size: 0.88em; color: var(--white); font-weight: 500; flex: 1; }
+        .test-ref { font-size: 0.65em; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 3px; }
+        .test-status { font-size: 0.68em; padding: 2px 10px; border-radius: 3px; font-weight: 600; margin-left: auto; }
+        .st-pass { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .st-fail { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .st-pending { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid #333; }
+        .test-body { padding: 12px 16px; }
+        .test-row { display: grid; grid-template-columns: 110px 1fr; gap: 4px; margin-bottom: 8px; font-size: 0.84em; }
+        .test-label { color: var(--gold-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px; }
+        .test-steps { padding-left: 0; list-style: none; counter-reset: step; }
+        .test-steps li { counter-increment: step; padding: 3px 0 3px 24px; position: relative; }
+        .test-steps li::before { content: counter(step)'.'; position: absolute; left: 0; color: var(--gold-dim); font-size: 0.85em; font-weight: 600; }
+        .test-result-box { margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 0.82em; border: 1px dashed #333; color: var(--text-muted); min-height: 32px; }
+
+        .summary-bar { display: flex; gap: 16px; justify-content: center; padding: 16px; margin: 16px 0; background: var(--bg-card); border-radius: 8px; border: 1px solid #1a1a1a; flex-wrap: wrap; }
+        .summary-item { text-align: center; }
+        .summary-item .num { font-size: 1.8em; font-weight: 300; }
+        .summary-item .label { font-size: 0.7em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.75em; margin-top: 20px; }
+        @media (max-width: 600px) { .test-row { grid-template-columns: 1fr; } .test-label { margin-bottom: -2px; } .summary-bar { gap: 10px; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Casos de Test</h1>
+    <p>Validacion funcional por historia de usuario &mdash; Capilex Patient App</p>
+</div>
+
+<div class="container">
+
+    <div class="summary-bar">
+        <div class="summary-item"><div class="num" style="color:var(--gold)">32</div><div class="label">Total tests</div></div>
+        <div class="summary-item"><div class="num" style="color:var(--success)">0</div><div class="label">Pass</div></div>
+        <div class="summary-item"><div class="num" style="color:var(--danger)">0</div><div class="label">Fail</div></div>
+        <div class="summary-item"><div class="num" style="color:var(--text-muted)">32</div><div class="label">Pendiente</div></div>
+    </div>
+
+    <p style="font-size:0.82em; color:var(--text-muted); text-align:center; margin-bottom:20px;">Ejecutar cada test manualmente. Anotar resultado real en la caja punteada. Marcar PASS/FAIL.</p>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P01 &mdash; Acceso con codigo</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-001</div>
+            <h3>Login con codigo valido</h3>
+            <span class="test-ref">P01</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Existe una intervencion con access_code = "ABCD1234" en BD. Servidor arrancado.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /login</li>
+                    <li>Introducir "ABCD1234" en los 8 campos</li>
+                    <li>Pulsar "Acceder"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Redirige a / (dashboard). Se ve el nombre del paciente y su dia postoperatorio. Cookie capilex_session creada.</div></div>
+            <div class="test-result-box">Resultado real: (escribir aqui)</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-002</div>
+            <h3>Login con codigo incorrecto</h3>
+            <span class="test-ref">P01</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /login</li>
+                    <li>Introducir "XXXX9999"</li>
+                    <li>Pulsar "Acceder"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Mensaje de error: "Codigo no encontrado. Verifica con tu clinica." Los campos se vacian. No redirige.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-003</div>
+            <h3>Rate limiting: 6 intentos fallidos</h3>
+            <span class="test-ref">P01</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /login</li>
+                    <li>Introducir un codigo incorrecto 6 veces seguidas</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>En el intento 6 muestra: "Demasiados intentos. Espera 15 minutos." (HTTP 429)</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-004</div>
+            <h3>Pegar codigo desde portapapeles</h3>
+            <span class="test-ref">P01</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Copiar "ABCD1234" al portapapeles</li>
+                    <li>Ir a /login y pegar en el primer campo</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Los 8 caracteres se distribuyen automaticamente en los 8 campos. Se envia automaticamente (auto-submit).</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P02 &mdash; Dashboard</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-005</div>
+            <h3>Dashboard muestra dia postoperatorio correcto</h3>
+            <span class="test-ref">P02</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente con surgery_date = hace 5 dias.</div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Contador muestra "5 dias de recuperacion". Header muestra "Dia 5 postoperatorio". Timeline resalta "Dias 5 a 7" como fase actual.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-006</div>
+            <h3>Dashboard pre-operatorio (cirugia en 3 dias)</h3>
+            <span class="test-ref">P02</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente con surgery_date = dentro de 3 dias.</div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Contador muestra "3 dias para tu cirugia". Timeline resalta "2 dias antes" como fase actual.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P03 &mdash; Checklist diario</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-007</div>
+            <h3>Tareas correctas para dia 1 postoperatorio</h3>
+            <span class="test-ref">P03</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente en dia 1 postoperatorio.</div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Aparecen tareas: "Hidratar zona injertada cada 30 min" (critico), "No tocar zona receptora" (critico), "Dormir boca arriba 45°", "No conducir", "No cafeina", "Reposo relativo", etc. NO aparecen tareas de dia 5+.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-008</div>
+            <h3>Marcar y desmarcar tarea</h3>
+            <span class="test-ref">P03</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>En /checklist, pulsar sobre una tarea para marcarla</li>
+                    <li>Verificar que aparece check verde y texto tachado</li>
+                    <li>Verificar que la barra de progreso avanza</li>
+                    <li>Pulsar de nuevo para desmarcar</li>
+                    <li>Verificar que vuelve al estado original</li>
+                    <li>Recargar pagina y verificar que el estado persiste</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Cambio visual inmediato (optimistic). Persistencia en BD tras recarga.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-009</div>
+            <h3>Tareas cambian al cambiar de dia</h3>
+            <span class="test-ref">P03</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Cambiar surgery_date en BD para simular dia 5 vs dia 1.</div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Dia 1: tareas de hidratacion, no tocar. Dia 5: aparece "Lavar zona receptora SIN tocar" (2x dia) y desaparece "No conducir".</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P05 &mdash; Medicacion</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-010</div>
+            <h3>Medicacion activa en dia 3</h3>
+            <span class="test-ref">P05</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente en dia 3.</div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Ciprofloxacino: ACTIVO, dia 4 de 7. Paracetamol: ACTIVO, ultimo dia (dia 3 de 3). Prednisona: ACTIVO, dia 4 de 5. Omeprazol: ACTIVO.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-011</div>
+            <h3>Medicacion completada en dia 10</h3>
+            <span class="test-ref">P05</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente en dia 10.</div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Todos los medicamentos muestran badge "COMPLETADO" con opacidad reducida. Paracetamol indica "a demanda si dolor".</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P06/P07 &mdash; Fotos + IA</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-012</div>
+            <h3>Subir foto y recibir analisis IA</h3>
+            <span class="test-ref">P06</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>OpenAI API key configurada. Supabase Storage bucket "patient-photos" creado.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /photos/upload</li>
+                    <li>Seleccionar zona "Frontal"</li>
+                    <li>Elegir una foto de galeria (imagen de un cuero cabelludo)</li>
+                    <li>Verificar preview</li>
+                    <li>Pulsar "Subir y analizar"</li>
+                    <li>Esperar respuesta</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Spinner durante subida. Resultado con 6 barras de score (costras, enrojecimiento, infeccion, injertos, cicatrizacion, progreso). Recomendaciones. Disclaimer legal. Foto guardada en Supabase Storage.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-013</div>
+            <h3>Foto con riesgo alto notifica a Telegram</h3>
+            <span class="test-ref">P06 + C05</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Telegram bot configurado.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Subir una foto que la IA podria evaluar como preocupante (enrojecimiento excesivo, secrecion)</li>
+                    <li>Verificar resultado en la app</li>
+                    <li>Verificar grupo de Telegram</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>App muestra alerta roja "Recomendamos contactar con la clinica". Telegram recibe notificacion con nombre paciente, dia, zona, y nivel "ATENCION" o "URGENTE".</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-014</div>
+            <h3>Galeria muestra fotos con analisis</h3>
+            <span class="test-ref">P07</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Al menos 2 fotos subidas.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /photos</li>
+                    <li>Verificar grid de thumbnails con indicador de color (verde/amarillo/rojo)</li>
+                    <li>Pulsar una foto</li>
+                    <li>Verificar modal con foto grande + analisis IA completo</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Grid con fotos. Click abre modal a pantalla completa con zoom + barras de score + recomendaciones.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P10-P14 &mdash; Chat con agentes IA</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-015</div>
+            <h3>Pregunta medica → Experto Quirurgico</h3>
+            <span class="test-ref">P10</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /chat</li>
+                    <li>Escribir: "¿Es normal que me pique mucho la zona injertada?"</li>
+                    <li>Enviar</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Respuesta con badge "🩺 Experto Quirurgico". Texto en streaming. Menciona que el picor es normal (senal de cicatrizacion). Sugiere Agua Termal. Adaptado al dia postoperatorio actual.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-016</div>
+            <h3>Pregunta de restriccion → Prevencion Riesgos</h3>
+            <span class="test-ref">P11</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente en dia 5.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Escribir: "¿Puedo ir al gimnasio?"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Badge "🛡️ Prevencion de Riesgos". Responde: NO + razon (ejercicio prohibido 15 dias, presion sanguinea) + cuando podra (dia 15 moderado, dia 30 intenso).</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-017</div>
+            <h3>Misma pregunta en dia 20 → respuesta diferente</h3>
+            <span class="test-ref">P11</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Cambiar surgery_date para simular dia 20.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Escribir: "¿Puedo ir al gimnasio?"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Responde: SI, ejercicio moderado permitido desde dia 15. PERO no pesas ni deporte de contacto hasta dia 30.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-018</div>
+            <h3>Ansiedad por shedding → Experiencia Paciente</h3>
+            <span class="test-ref">P12</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>Paciente en dia 21 (fase shedding).</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Escribir: "Se me esta cayendo el pelo trasplantado, estoy muy preocupado. ¿Ha funcionado?"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Badge "💛 Companero de Experiencia". Explica shedding como NORMAL y NECESARIO. 95% pacientes lo experimentan. Foliculos vivos. Primeros resultados mes 3-4. Tono calido y tranquilizador.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-019</div>
+            <h3>Emergencia → Escalado a humano + Telegram</h3>
+            <span class="test-ref">P13</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Escribir: "Tengo fiebre de 39 grados y veo pus en la zona donante"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>NO responde un agente normal. Muestra mensaje de escalado con borde rojo: "He notificado al equipo de Capilex Madrid..." + telefono + email. Telegram recibe alerta de urgencia ALTA con el mensaje del paciente.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-020</div>
+            <h3>Pedir hablar con un humano → Escalado</h3>
+            <span class="test-ref">P13</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Escribir: "Quiero hablar con un medico de verdad, no con un robot"</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Router detecta ESCALATE. Mismo comportamiento que T-019: mensaje de escalado + notificacion Telegram.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-021</div>
+            <h3>Streaming de respuesta visible</h3>
+            <span class="test-ref">P14</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Enviar cualquier pregunta en el chat</li>
+                    <li>Observar la respuesta mientras se genera</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Se ven los dots de carga (3 puntos animados). Luego el texto aparece palabra a palabra (streaming). Cursor dorado parpadeante al final. Badge del agente visible desde el inicio.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P04 &mdash; Lista de compras</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-022</div>
+            <h3>Lista completa con separacion por prioridad</h3>
+            <span class="test-ref">P04</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /shopping</li>
+                    <li>Verificar que aparecen 6 items imprescindibles y 2 recomendados</li>
+                    <li>Verificar que cada item tiene nombre, descripcion y donde comprarlo</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Agua Termal (Farmacia), Mustela (Farmacia), Blastoestimulina (Farmacia), Suero (Farmacia), Agua oxigenada (Farmacia/Super), Almohada cervical (Amazon). Recomendados: Toalla microfibra, Champu pH neutro.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-023</div>
+            <h3>Marcar todos → mensaje "todo listo"</h3>
+            <span class="test-ref">P04</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Marcar todos los items como comprados</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Aparece banner verde "Tienes todo listo!" Barra progreso al 100%.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>P09 &mdash; Emergencia</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-024</div>
+            <h3>Pagina emergencia con todos los elementos</h3>
+            <span class="test-ref">P09</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Ir a /emergency</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Boton "Llamar a la clinica" (tel:). Email recetas@capilexmadrid.es (mailto:). Link al chat IA. Lista de 7 sintomas de alarma. Info CIF clinica.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>C05 &mdash; Telegram</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-025</div>
+            <h3>Test endpoint Telegram envia 5 mensajes</h3>
+            <span class="test-ref">C05</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>TELEGRAM_BOT_TOKEN y TELEGRAM_CLINIC_CHAT_ID configurados en .env.local.</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Abrir http://localhost:3000/api/telegram/test</li>
+                    <li>Verificar respuesta JSON con success=true</li>
+                    <li>Verificar grupo de Telegram</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>5 mensajes en Telegram: resumen diario, foto subida, escalado chat, plazo pre-op, primer acceso. Todos con formato HTML y emojis.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-026</div>
+            <h3>Telegram sin configurar no rompe la app</h3>
+            <span class="test-ref">C05</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Precondicion</div><div>TELEGRAM_BOT_TOKEN = "your_telegram_bot_token_here" (valor placeholder).</div></div>
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Subir una foto en /photos/upload</li>
+                    <li>Enviar mensaje en /chat</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>La app funciona normalmente. No hay error. Console muestra warning "[Telegram] Bot no configurado, saltando notificacion".</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Responsive / UX</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-027</div>
+            <h3>App funciona en movil (375px)</h3>
+            <span class="test-ref">UX</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Abrir DevTools → responsive → iPhone SE (375px)</li>
+                    <li>Navegar por: login, dashboard, checklist, fotos, chat, medicacion, shopping, emergencia</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Todo se ve correctamente. Bottom nav accesible. Textos legibles. No hay scroll horizontal. Cards no se cortan. Chat input no queda oculto por el teclado.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-028</div>
+            <h3>Bottom navigation funciona correctamente</h3>
+            <span class="test-ref">UX</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Pulsar cada tab del bottom nav: Inicio, Tareas, Fotos, Chat, Ayuda</li>
+                    <li>Verificar que navega a la pagina correcta</li>
+                    <li>Verificar que el tab activo se resalta en dorado</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Navegacion fluida. Tab activo en dorado. El contenido no queda oculto por el bottom nav (padding-bottom suficiente).</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Seguridad</span></div>
+    <!-- ============================================ -->
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-029</div>
+            <h3>Acceso sin cookie redirige a login</h3>
+            <span class="test-ref">Seguridad</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Borrar cookies del navegador</li>
+                    <li>Intentar acceder a /checklist directamente</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Redirige a /login. No se ve contenido de paciente.</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-030</div>
+            <h3>API sin cookie devuelve 401</h3>
+            <span class="test-ref">Seguridad</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Desde terminal: curl http://localhost:3000/api/patient/profile</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Respuesta 401: {"error": "No autorizado"}</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-031</div>
+            <h3>Cron sin CRON_SECRET devuelve 401</h3>
+            <span class="test-ref">Seguridad</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>POST a /api/cron/daily-summary sin header Authorization</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Respuesta 401: {"error": "No autorizado"}</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="test-case">
+        <div class="test-header">
+            <div class="test-id">T-032</div>
+            <h3>Foto rechazada si no es imagen</h3>
+            <span class="test-ref">Seguridad</span>
+            <span class="test-status st-pending">PENDIENTE</span>
+        </div>
+        <div class="test-body">
+            <div class="test-row"><div class="test-label">Pasos</div><div>
+                <ol class="test-steps">
+                    <li>Intentar subir un archivo .pdf o .exe via la API de fotos</li>
+                </ol>
+            </div></div>
+            <div class="test-row"><div class="test-label">Esperado</div><div>Error 400: "Formato no soportado. Usa JPEG, PNG o WebP."</div></div>
+            <div class="test-result-box">Resultado real:</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        Capilex Madrid &mdash; Casos de test v1.0 &mdash; 32 tests<br>
+        Ejecutar antes del deploy a produccion. Anotar resultados y firmar.
+    </div>
+
+</div>
+</body>
+</html>

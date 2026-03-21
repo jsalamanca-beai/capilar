@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisis Microsoft Teams vs Telegram - Capilex Madrid</title>
+    <style>
+        :root {
+            --gold: rgb(231, 184, 97);
+            --gold-light: rgba(231, 184, 97, 0.15);
+            --gold-subtle: rgba(231, 184, 97, 0.08);
+            --gold-border: rgba(231, 184, 97, 0.25);
+            --gold-dim: rgba(231, 184, 97, 0.5);
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --text: #d4d4d4;
+            --text-muted: #888888;
+            --white: #ffffff;
+            --success: #27ae60;
+            --success-bg: rgba(39, 174, 96, 0.1);
+            --success-border: rgba(39, 174, 96, 0.25);
+            --blue: #2980b9;
+            --blue-bg: rgba(41, 128, 185, 0.1);
+            --blue-border: rgba(41, 128, 185, 0.25);
+            --purple: #7b68ee;
+            --purple-bg: rgba(123, 104, 238, 0.1);
+            --purple-border: rgba(123, 104, 238, 0.25);
+            --danger: #c0392b;
+            --danger-bg: rgba(192, 57, 43, 0.1);
+            --danger-border: rgba(192, 57, 43, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .header { background: #000; padding: 40px 20px 30px; text-align: center; border-bottom: 2px solid var(--gold); }
+        .header h1 { font-size: 1.6em; color: var(--gold); letter-spacing: 3px; font-weight: 300; text-transform: uppercase; margin-bottom: 4px; }
+        .header p { color: var(--text-muted); font-size: 0.9em; letter-spacing: 1px; }
+        .nav { background: #000; padding: 12px 20px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #1a1a1a; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .nav a { color: var(--text-muted); text-decoration: none; padding: 7px 14px; border-radius: 4px; font-size: 0.8em; border: 1px solid #222; transition: all 0.3s; }
+        .nav a:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+        .container { max-width: 920px; margin: 0 auto; padding: 20px 16px; }
+        .section { margin-bottom: 28px; border-radius: 8px; overflow: hidden; background: var(--bg-card); border: 1px solid #1a1a1a; }
+        .section-header { padding: 18px 22px; display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, #111, #0a0a0a); border-bottom: 1px solid var(--gold-border); flex-wrap: wrap; }
+        .section-header .icon { font-size: 1.8em; min-width: 40px; text-align: center; }
+        .section-header h2 { font-size: 1.15em; color: var(--gold); letter-spacing: 1px; font-weight: 400; flex: 1; }
+        .section-header small { color: var(--text-muted); display: block; font-size: 0.75em; }
+        .badge { padding: 3px 12px; border-radius: 3px; font-size: 0.7em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-free { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .badge-paid { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+        .badge-warn { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .badge-ok { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+        .section-body { padding: 8px 22px 22px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 4px; margin: 10px 0; }
+        th { text-align: left; padding: 8px 14px; color: var(--gold); font-size: 0.72em; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 400; }
+        td { padding: 11px 14px; background: rgba(255,255,255,0.03); font-size: 0.86em; }
+        tr td:first-child { border-radius: 6px 0 0 6px; font-weight: 500; color: var(--white); border-left: 2px solid var(--gold-border); }
+        tr td:last-child { border-radius: 0 6px 6px 0; }
+        .total-row td { background: var(--gold-subtle); font-weight: 600; }
+        .total-row td:first-child { border-left-color: var(--gold); }
+        .price { color: var(--gold); font-weight: 600; }
+        .free { color: var(--success); font-weight: 600; }
+        .warn { color: var(--danger); }
+        .highlight { padding: 14px 18px; border-radius: 6px; margin: 10px 0; display: flex; align-items: flex-start; gap: 10px; font-size: 0.88em; }
+        .highlight-icon { font-size: 1.2em; flex-shrink: 0; }
+        .highlight-success { background: var(--success-bg); border: 1px solid var(--success-border); }
+        .highlight-success strong { color: var(--success); }
+        .highlight-gold { background: var(--gold-subtle); border: 1px solid var(--gold-border); }
+        .highlight-gold strong { color: var(--gold); }
+        .highlight-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); }
+        .highlight-blue strong { color: var(--blue); }
+        .highlight-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); }
+        .highlight-danger strong { color: var(--danger); }
+        .highlight-purple { background: var(--purple-bg); border: 1px solid var(--purple-border); }
+        .highlight-purple strong { color: var(--purple); }
+        .divider { text-align: center; padding: 28px 0 14px; position: relative; }
+        .divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: linear-gradient(to right, transparent, var(--gold-border), transparent); }
+        .divider span { background: var(--bg); padding: 0 18px; position: relative; font-size: 0.78em; color: var(--gold); text-transform: uppercase; letter-spacing: 4px; font-weight: 300; }
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+        .compare-card { background: rgba(255,255,255,0.02); border-radius: 8px; padding: 16px; border: 1px solid #1a1a1a; text-align: center; }
+        .compare-card h4 { color: var(--gold); font-size: 0.88em; font-weight: 400; margin-bottom: 4px; }
+        .compare-card .big-number { font-size: 2em; font-weight: 300; margin: 8px 0; }
+        .compare-card p { font-size: 0.76em; color: var(--text-muted); }
+        .pro-con { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+        .pro-list, .con-list { list-style: none; padding: 0; }
+        .pro-list li, .con-list li { padding: 5px 0 5px 22px; position: relative; font-size: 0.85em; }
+        .pro-list li::before { content: '✓'; position: absolute; left: 0; color: var(--success); font-weight: bold; }
+        .con-list li::before { content: '✗'; position: absolute; left: 0; color: var(--danger); font-weight: bold; }
+        .verdict { background: linear-gradient(135deg, var(--gold-subtle), rgba(231,184,97,0.03)); border: 1px solid var(--gold-border); border-radius: 8px; padding: 20px; margin: 16px 0; }
+        .verdict h3 { color: var(--gold); font-size: 1em; font-weight: 400; margin-bottom: 8px; letter-spacing: 1px; }
+        .footer { background: #000; border: 1px solid var(--gold-border); border-radius: 8px; padding: 20px; text-align: center; margin: 28px 0; }
+        .footer p { color: var(--gold); font-weight: 400; font-size: 0.9em; }
+        .footer small { color: var(--text-muted); font-size: 0.78em; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.2em; }
+            .compare-grid, .pro-con { grid-template-columns: 1fr; }
+            table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; font-size: 0.8em; }
+            .nav a { padding: 5px 10px; font-size: 0.73em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Microsoft Teams vs Telegram</h1>
+    <p>Analisis de viabilidad para canal interno de la clinica</p>
+</div>
+
+<nav class="nav">
+    <a href="#resumen">Resumen</a>
+    <a href="#telegram">Telegram</a>
+    <a href="#teams">Microsoft Teams</a>
+    <a href="#comparativa">Comparativa</a>
+    <a href="#veredicto">Veredicto</a>
+</nav>
+
+<div class="container">
+
+    <!-- RESUMEN EJECUTIVO -->
+    <div class="section" id="resumen">
+        <div class="section-header">
+            <div class="icon">📊</div>
+            <div>
+                <h2>Resumen ejecutivo</h2>
+                <small>La pregunta: usar Telegram, Teams o ambos para alertas internas de la clinica</small>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="compare-grid">
+                <div class="compare-card">
+                    <h4>✈️ Telegram</h4>
+                    <div class="big-number" style="color:var(--success)">0 EUR</div>
+                    <p>Setup: 10 min<br>Complejidad: Baja<br>Licencia: Ninguna</p>
+                </div>
+                <div class="compare-card">
+                    <h4>🟣 Microsoft Teams</h4>
+                    <div class="big-number" style="color:var(--purple)">0-15 EUR</div>
+                    <p>Setup: 30 min - 3 dias<br>Complejidad: Media-Alta<br>Licencia: M365 requerida</p>
+                </div>
+            </div>
+
+            <div class="highlight highlight-gold">
+                <div class="highlight-icon">💡</div>
+                <div><strong>Respuesta corta:</strong> Teams es viable, pero solo merece la pena si la clinica YA usa Microsoft 365 y el equipo vive en Teams. Si no, Telegram es objetivamente superior en coste, velocidad y simplicidad.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Analisis detallado</span></div>
+    <!-- ============================================ -->
+
+    <!-- TELEGRAM -->
+    <div class="section" id="telegram">
+        <div class="section-header">
+            <div class="icon">✈️</div>
+            <div>
+                <h2>Telegram</h2>
+                <small>Bot API + Grupo privado</small>
+            </div>
+            <span class="badge badge-free">GRATIS</span>
+        </div>
+        <div class="section-body">
+            <table>
+                <thead><tr><th>Aspecto</th><th>Detalle</th></tr></thead>
+                <tbody>
+                    <tr><td>Coste</td><td class="free">0 EUR (todo gratis, sin limites practicos)</td></tr>
+                    <tr><td>Setup</td><td>10 minutos (crear bot + grupo)</td></tr>
+                    <tr><td>Licencia</td><td>Ninguna. Telegram es gratuito para todos.</td></tr>
+                    <tr><td>Complejidad tecnica</td><td>Baja: un simple HTTP POST a la API</td></tr>
+                    <tr><td>Formato mensajes</td><td>HTML, Markdown, imagenes, documentos, botones inline</td></tr>
+                    <tr><td>Rate limit</td><td>30 msg/seg (irrelevante para una clinica)</td></tr>
+                    <tr><td>Tamano archivo</td><td>Hasta 50 MB</td></tr>
+                    <tr><td>Azure/Cloud</td><td>No requiere ninguna infraestructura cloud</td></tr>
+                    <tr><td>Fiabilidad</td><td>99.9%+ uptime, infraestructura global</td></tr>
+                    <tr><td>Riesgo deprecacion</td><td class="free">Nulo. Bot API estable desde 2015</td></tr>
+                    <tr><td>App movil</td><td>iOS, Android, Desktop, Web (todas gratis)</td></tr>
+                </tbody>
+            </table>
+
+            <div class="pro-con">
+                <div>
+                    <h4 style="color:var(--success); font-size:0.8em; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Ventajas</h4>
+                    <ul class="pro-list">
+                        <li>Totalmente gratuito, sin limites</li>
+                        <li>Setup en 10 minutos</li>
+                        <li>Sin dependencia de Microsoft/Azure</li>
+                        <li>API estable y documentada</li>
+                        <li>Notificaciones push instantaneas</li>
+                        <li>Funciona en cualquier dispositivo</li>
+                        <li>No requiere licencias de ningun tipo</li>
+                        <li>Codigo ya implementado y probado</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color:var(--danger); font-size:0.8em; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Desventajas</h4>
+                    <ul class="con-list">
+                        <li>Requiere instalar Telegram (si no lo usan)</li>
+                        <li>No se integra con el ecosistema M365</li>
+                        <li>Sin integracion con calendario Outlook</li>
+                        <li>No es "corporativo" para algunas empresas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MICROSOFT TEAMS -->
+    <div class="section" id="teams">
+        <div class="section-header">
+            <div class="icon">🟣</div>
+            <div>
+                <h2>Microsoft Teams</h2>
+                <small>Tres opciones de integracion disponibles</small>
+            </div>
+            <span class="badge badge-ok">VIABLE</span>
+        </div>
+        <div class="section-body">
+
+            <div class="highlight highlight-danger">
+                <div class="highlight-icon">⚠️</div>
+                <div><strong>ALERTA: Webhooks clasicos de Teams se retiran en 2025.</strong> Microsoft esta eliminando los "Office 365 Incoming Webhooks" (el metodo mas simple). La alternativa oficial es usar Workflow Webhooks via Power Automate.</div>
+            </div>
+
+            <!-- Opcion A -->
+            <h3 style="color:var(--gold); font-size:0.9em; font-weight:400; letter-spacing:1px; margin:18px 0 8px;">Opcion A: Workflow Webhook (recomendada para Teams)</h3>
+            <table>
+                <thead><tr><th>Aspecto</th><th>Detalle</th></tr></thead>
+                <tbody>
+                    <tr><td>Que es</td><td>Reemplazo oficial de los webhooks. Usa Power Automate internamente.</td></tr>
+                    <tr><td>Coste</td><td class="free">0 EUR (incluido con licencia M365)</td></tr>
+                    <tr><td>Setup</td><td>10-15 minutos</td></tr>
+                    <tr><td>Requiere</td><td><span class="warn">Licencia Microsoft 365 Business Basic o superior</span></td></tr>
+                    <tr><td>Azure</td><td>No necesario</td></tr>
+                    <tr><td>Formato</td><td>Adaptive Cards (JSON) — tarjetas ricas con imagenes y botones</td></tr>
+                    <tr><td>Rate limit</td><td>Gobernado por Power Automate (~6.000 ejecuciones/dia)</td></tr>
+                    <tr><td>Riesgo deprecacion</td><td class="free">Bajo (es el nuevo estandar oficial)</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Opcion B -->
+            <h3 style="color:var(--gold); font-size:0.9em; font-weight:400; letter-spacing:1px; margin:18px 0 8px;">Opcion B: Bot Framework (maxima flexibilidad)</h3>
+            <table>
+                <thead><tr><th>Aspecto</th><th>Detalle</th></tr></thead>
+                <tbody>
+                    <tr><td>Que es</td><td>Bot registrado en Azure que envia mensajes proactivos a Teams.</td></tr>
+                    <tr><td>Coste</td><td class="price">0-15 EUR/mes (hosting Azure Functions o App Service)</td></tr>
+                    <tr><td>Setup</td><td>1-3 dias (registro Azure AD + bot + manifest Teams)</td></tr>
+                    <tr><td>Requiere</td><td><span class="warn">Licencia M365 + suscripcion Azure</span></td></tr>
+                    <tr><td>Formato</td><td>Adaptive Cards completas, threading, botones interactivos</td></tr>
+                    <tr><td>Rate limit</td><td>~1 msg/seg por conversacion</td></tr>
+                    <tr><td>Complejidad</td><td><span class="warn">Alta: hosting propio, token refresh, proactive messaging</span></td></tr>
+                    <tr><td>Bidireccional</td><td class="free">Si (los doctores pueden responder al bot)</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Opcion C -->
+            <h3 style="color:var(--gold); font-size:0.9em; font-weight:400; letter-spacing:1px; margin:18px 0 8px;">Opcion C: Power Automate Flow (termino medio)</h3>
+            <table>
+                <thead><tr><th>Aspecto</th><th>Detalle</th></tr></thead>
+                <tbody>
+                    <tr><td>Que es</td><td>Flow que recibe HTTP POST y publica en canal Teams.</td></tr>
+                    <tr><td>Coste</td><td class="free">0 EUR (incluido con M365) o 15 EUR/mes (premium)</td></tr>
+                    <tr><td>Setup</td><td>30 min - 2 horas</td></tr>
+                    <tr><td>Requiere</td><td><span class="warn">Licencia M365 Business Basic+</span></td></tr>
+                    <tr><td>Formato</td><td>Adaptive Cards, HTML</td></tr>
+                    <tr><td>Rate limit</td><td>6.000 ejecuciones/dia (plan seeded M365)</td></tr>
+                    <tr><td>Ventaja</td><td>Editor visual, logs integrados, reintentos automaticos</td></tr>
+                </tbody>
+            </table>
+
+            <div class="pro-con" style="margin-top:16px">
+                <div>
+                    <h4 style="color:var(--success); font-size:0.8em; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Ventajas de Teams</h4>
+                    <ul class="pro-list">
+                        <li>Integrado con ecosistema Microsoft (Outlook, SharePoint)</li>
+                        <li>Puede ser preferido si ya usan M365</li>
+                        <li>Adaptive Cards muy visuales</li>
+                        <li>Bot Framework permite bidireccionalidad</li>
+                        <li>Percepcion "corporativa"</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color:var(--danger); font-size:0.8em; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Desventajas de Teams</h4>
+                    <ul class="con-list">
+                        <li>Requiere licencia M365 (no hay plan gratis util)</li>
+                        <li>Webhooks clasicos se retiran en 2025</li>
+                        <li>Bot Framework necesita Azure + hosting</li>
+                        <li>Mas complejo de implementar y mantener</li>
+                        <li>Power Automate tiene limites de ejecucion</li>
+                        <li>No funciona con Teams gratuito</li>
+                        <li>Latencia ocasional de 30-60 seg en Power Automate</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Comparativa directa</span></div>
+    <!-- ============================================ -->
+
+    <div class="section" id="comparativa">
+        <div class="section-header">
+            <div class="icon">⚖️</div>
+            <div>
+                <h2>Comparativa completa</h2>
+                <small>Telegram vs Teams (Workflow Webhook) vs Teams (Bot Framework)</small>
+            </div>
+        </div>
+        <div class="section-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Criterio</th>
+                        <th>✈️ Telegram</th>
+                        <th>🟣 Teams Webhook</th>
+                        <th>🟣 Teams Bot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Coste mensual</td>
+                        <td class="free">0 EUR</td>
+                        <td>0 EUR *</td>
+                        <td class="price">0-15 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Licencias necesarias</td>
+                        <td class="free">Ninguna</td>
+                        <td class="warn">M365 Business</td>
+                        <td class="warn">M365 + Azure</td>
+                    </tr>
+                    <tr>
+                        <td>Setup</td>
+                        <td class="free">10 min</td>
+                        <td>15 min</td>
+                        <td class="warn">1-3 dias</td>
+                    </tr>
+                    <tr>
+                        <td>Complejidad tecnica</td>
+                        <td class="free">Baja</td>
+                        <td>Media</td>
+                        <td class="warn">Alta</td>
+                    </tr>
+                    <tr>
+                        <td>Formato mensajes</td>
+                        <td>HTML + Markdown</td>
+                        <td>Adaptive Cards</td>
+                        <td>Adaptive Cards</td>
+                    </tr>
+                    <tr>
+                        <td>Imagenes</td>
+                        <td class="free">Si (50 MB)</td>
+                        <td>Si (URL)</td>
+                        <td>Si (URL + inline)</td>
+                    </tr>
+                    <tr>
+                        <td>Bidireccional</td>
+                        <td>No (solo alertas)</td>
+                        <td>No</td>
+                        <td class="free">Si</td>
+                    </tr>
+                    <tr>
+                        <td>Rate limit</td>
+                        <td class="free">30 msg/seg</td>
+                        <td>6.000/dia</td>
+                        <td>1 msg/seg</td>
+                    </tr>
+                    <tr>
+                        <td>Hosting propio</td>
+                        <td class="free">No</td>
+                        <td class="free">No</td>
+                        <td class="warn">Si (Azure)</td>
+                    </tr>
+                    <tr>
+                        <td>Mantenimiento</td>
+                        <td class="free">Ninguno</td>
+                        <td>Minimo</td>
+                        <td class="warn">Hosting + tokens</td>
+                    </tr>
+                    <tr>
+                        <td>Riesgo deprecacion</td>
+                        <td class="free">Nulo</td>
+                        <td class="free">Bajo</td>
+                        <td class="free">Bajo</td>
+                    </tr>
+                    <tr>
+                        <td>Teams gratis</td>
+                        <td>N/A</td>
+                        <td class="warn">No funciona</td>
+                        <td class="warn">Limitado</td>
+                    </tr>
+                    <tr>
+                        <td>Notificaciones push</td>
+                        <td class="free">Instantaneas</td>
+                        <td>1-60 seg latencia</td>
+                        <td>Instantaneas</td>
+                    </tr>
+                    <tr>
+                        <td>Codigo implementado</td>
+                        <td class="free">Si, listo</td>
+                        <td>Por hacer</td>
+                        <td>Por hacer</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size:0.75em; color:var(--text-muted); margin-top:4px;">* El Workflow Webhook es gratuito si ya tienes M365. La licencia M365 Business Basic cuesta ~6 EUR/usuario/mes.</p>
+        </div>
+    </div>
+
+    <!-- COSTE REAL TEAMS -->
+    <div class="section">
+        <div class="section-header">
+            <div class="icon">💰</div>
+            <div>
+                <h2>Coste real de Teams si la clinica NO tiene M365</h2>
+                <small>Lo que habria que pagar para usar Teams</small>
+            </div>
+        </div>
+        <div class="section-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Coste</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>M365 Business Basic (por usuario)</td>
+                        <td class="price">6 EUR/usuario/mes</td>
+                        <td>Minimo para Teams + Power Automate</td>
+                    </tr>
+                    <tr>
+                        <td>Equipo clinico (ej: 4 personas)</td>
+                        <td class="price">24 EUR/mes</td>
+                        <td>4 licencias x 6 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Azure (si usan Bot Framework)</td>
+                        <td class="price">0-15 EUR/mes</td>
+                        <td>Solo si eligen Bot Framework</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>TOTAL (sin M365 previo)</td>
+                        <td class="price">24-39 EUR/mes</td>
+                        <td>Solo para el canal de alertas</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight highlight-danger">
+                <div class="highlight-icon">⚠️</div>
+                <div><strong>Si la clinica NO usa Microsoft 365, no tiene sentido pagar 24+ EUR/mes solo para recibir alertas que Telegram ofrece gratis.</strong></div>
+            </div>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">✅</div>
+                <div><strong>Si la clinica YA tiene M365</strong>, Teams es una buena opcion porque el coste adicional es 0 EUR y el equipo ya esta alli.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Veredicto</span></div>
+    <!-- ============================================ -->
+
+    <div class="section" id="veredicto">
+        <div class="section-header">
+            <div class="icon">🎯</div>
+            <div>
+                <h2>Recomendacion final</h2>
+                <small>Depende de si la clinica ya usa Microsoft 365 o no</small>
+            </div>
+        </div>
+        <div class="section-body">
+
+            <div class="verdict">
+                <h3>Escenario A: La clinica NO usa Microsoft 365</h3>
+                <p style="font-size:0.9em; margin-bottom:8px;">
+                    <strong style="color:var(--success)">Usar Telegram.</strong>
+                    No tiene sentido pagar 24+ EUR/mes por licencias M365 solo para un canal de alertas.
+                    Telegram es gratis, se configura en 10 minutos, y el codigo ya esta listo.
+                </p>
+            </div>
+
+            <div class="verdict">
+                <h3>Escenario B: La clinica YA usa Microsoft 365</h3>
+                <p style="font-size:0.9em; margin-bottom:8px;">
+                    <strong style="color:var(--purple)">Usar Teams (Workflow Webhook) + Telegram como backup.</strong>
+                    Si el equipo ya vive en Teams, tiene sentido enviar alertas alli (coste adicional: 0 EUR).
+                    Mantener Telegram como canal secundario para alertas criticas (emergencias, escalados).
+                </p>
+            </div>
+
+            <div class="verdict">
+                <h3>Escenario C: Quieren ambos</h3>
+                <p style="font-size:0.9em; margin-bottom:8px;">
+                    <strong style="color:var(--gold)">Implementar ambos en paralelo.</strong>
+                    El codigo ya soporta multiples canales. Cada notificacion se envia a Telegram (siempre) + Teams (si esta configurado).
+                    Coste adicional de Teams: 0 EUR si ya tienen M365.
+                </p>
+            </div>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:20px 0 10px; text-transform:uppercase;">Plan de implementacion</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fase</th>
+                        <th>Canal</th>
+                        <th>Coste</th>
+                        <th>Tiempo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1. Ahora</td>
+                        <td>✈️ Telegram (ya listo)</td>
+                        <td class="free">0 EUR</td>
+                        <td>10 min config</td>
+                    </tr>
+                    <tr>
+                        <td>2. Si usan M365</td>
+                        <td>🟣 Teams Workflow Webhook</td>
+                        <td class="free">0 EUR</td>
+                        <td>2-3 horas dev</td>
+                    </tr>
+                    <tr>
+                        <td>3. Opcional</td>
+                        <td>💬 WhatsApp (pacientes)</td>
+                        <td class="price">~12 EUR/mes</td>
+                        <td>2-3 semanas</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Capilex Madrid &mdash; Analisis de canales de comunicacion</p>
+        <small>Precios estimados a marzo 2026. Teams requiere M365 Business Basic (6 EUR/usuario/mes) si no se tiene.</small>
+    </div>
+
+</div>
+</body>
+</html>

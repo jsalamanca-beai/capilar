@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo de Costes - Telegram y WhatsApp - Capilex Madrid</title>
+    <style>
+        :root {
+            --gold: rgb(231, 184, 97);
+            --gold-light: rgba(231, 184, 97, 0.15);
+            --gold-subtle: rgba(231, 184, 97, 0.08);
+            --gold-border: rgba(231, 184, 97, 0.25);
+            --gold-dim: rgba(231, 184, 97, 0.5);
+            --black: #000000;
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --text: #d4d4d4;
+            --text-muted: #888888;
+            --white: #ffffff;
+            --danger: #c0392b;
+            --danger-bg: rgba(192, 57, 43, 0.1);
+            --danger-border: rgba(192, 57, 43, 0.25);
+            --success: #27ae60;
+            --success-bg: rgba(39, 174, 96, 0.1);
+            --success-border: rgba(39, 174, 96, 0.25);
+            --blue: #2980b9;
+            --blue-bg: rgba(41, 128, 185, 0.1);
+            --blue-border: rgba(41, 128, 185, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Header */
+        .header {
+            background: var(--black);
+            padding: 40px 20px 30px;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+        }
+        .header img { max-width: 180px; margin-bottom: 16px; }
+        .header h1 {
+            font-size: 1.6em;
+            color: var(--gold);
+            letter-spacing: 3px;
+            font-weight: 300;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .header p { color: var(--text-muted); font-size: 0.9em; letter-spacing: 1px; }
+
+        /* Nav */
+        .nav {
+            background: var(--black);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #1a1a1a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+        .nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 7px 16px;
+            border-radius: 4px;
+            font-size: 0.82em;
+            border: 1px solid #222;
+            transition: all 0.3s;
+        }
+        .nav a:hover, .nav a.active {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .container { max-width: 920px; margin: 0 auto; padding: 20px 16px; }
+
+        /* Section */
+        .section {
+            margin-bottom: 28px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid #1a1a1a;
+        }
+        .section-header {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+            border-bottom: 1px solid var(--gold-border);
+        }
+        .section-header .icon { font-size: 1.8em; min-width: 40px; text-align: center; }
+        .section-header h2 {
+            font-size: 1.2em;
+            color: var(--gold);
+            letter-spacing: 1px;
+            font-weight: 400;
+        }
+        .section-header small { color: var(--text-muted); display: block; font-size: 0.75em; }
+        .section-header .badge {
+            margin-left: auto;
+            padding: 3px 12px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .badge-free { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .badge-paid { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+        .section-body { padding: 8px 22px 22px; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 4px;
+            margin: 10px 0;
+        }
+        th {
+            text-align: left;
+            padding: 8px 14px;
+            color: var(--gold);
+            font-size: 0.72em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 400;
+        }
+        td {
+            padding: 11px 14px;
+            background: rgba(255,255,255,0.03);
+            font-size: 0.88em;
+        }
+        tr td:first-child {
+            border-radius: 6px 0 0 6px;
+            font-weight: 500;
+            color: var(--white);
+            border-left: 2px solid var(--gold-border);
+        }
+        tr td:last-child { border-radius: 0 6px 6px 0; }
+        .price { color: var(--gold); font-weight: 600; }
+        .free { color: var(--success); font-weight: 600; }
+        .total-row td {
+            background: var(--gold-subtle);
+            font-weight: 600;
+            border-top: 1px solid var(--gold-border);
+        }
+        .total-row td:first-child { border-left: 2px solid var(--gold); }
+
+        /* Highlight boxes */
+        .highlight {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.9em;
+        }
+        .highlight-icon { font-size: 1.3em; min-width: 28px; text-align: center; flex-shrink: 0; }
+        .highlight-success { background: var(--success-bg); border: 1px solid var(--success-border); }
+        .highlight-success strong { color: var(--success); }
+        .highlight-gold { background: var(--gold-subtle); border: 1px solid var(--gold-border); }
+        .highlight-gold strong { color: var(--gold); }
+        .highlight-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); }
+        .highlight-blue strong { color: var(--blue); }
+        .highlight-danger { background: var(--danger-bg); border: 1px solid var(--danger-border); }
+        .highlight-danger strong { color: var(--danger); }
+
+        /* Phase divider */
+        .divider {
+            text-align: center;
+            padding: 28px 0 14px;
+            position: relative;
+        }
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--gold-border), transparent);
+        }
+        .divider span {
+            background: var(--bg);
+            padding: 0 18px;
+            position: relative;
+            font-size: 0.78em;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 300;
+        }
+
+        /* Comparison grid */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .compare-card {
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #1a1a1a;
+            text-align: center;
+        }
+        .compare-card h4 { color: var(--gold); font-size: 0.9em; font-weight: 400; margin-bottom: 4px; }
+        .compare-card .big-number { font-size: 2.2em; font-weight: 300; margin: 8px 0; }
+        .compare-card .big-number.green { color: var(--success); }
+        .compare-card .big-number.blue { color: var(--blue); }
+        .compare-card p { font-size: 0.78em; color: var(--text-muted); }
+
+        /* Steps */
+        .steps { counter-reset: step; }
+        .step {
+            display: flex;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px;
+            border-left: 2px solid var(--gold-border);
+            font-size: 0.9em;
+        }
+        .step-num {
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--gold-light);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            font-weight: 600;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .step strong { color: var(--white); }
+
+        /* Message preview */
+        .msg-preview {
+            background: #1a2e1a;
+            border: 1px solid #2a4a2a;
+            border-radius: 0 12px 12px 12px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            font-size: 0.85em;
+            max-width: 85%;
+            line-height: 1.6;
+        }
+        .msg-preview-tg {
+            background: #1a1a2e;
+            border-color: #2a2a4a;
+        }
+        .msg-label {
+            font-size: 0.7em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--black);
+            border: 1px solid var(--gold-border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 28px 0;
+        }
+        .footer p { color: var(--gold); font-weight: 400; font-size: 0.9em; }
+        .footer small { color: var(--text-muted); font-size: 0.78em; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.2em; }
+            .compare-grid { grid-template-columns: 1fr; }
+            .section-header { flex-wrap: wrap; }
+            .section-header .badge { margin-left: 0; margin-top: 4px; }
+            table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; font-size: 0.82em; }
+            th, td { padding: 8px 10px; }
+            .nav a { padding: 5px 10px; font-size: 0.75em; }
+            .msg-preview { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Modelo de Costes</h1>
+    <p>Canales de comunicacion &mdash; Telegram y WhatsApp</p>
+</div>
+
+<nav class="nav">
+    <a href="#telegram">Telegram</a>
+    <a href="#whatsapp">WhatsApp</a>
+    <a href="#comparativa">Comparativa</a>
+    <a href="#coste-total">Coste Total App</a>
+    <a href="#recomendacion">Recomendacion</a>
+</nav>
+
+<div class="container">
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Canal interno clinica</span></div>
+    <!-- ============================================ -->
+
+    <!-- TELEGRAM -->
+    <div class="section" id="telegram">
+        <div class="section-header">
+            <div class="icon">✈️</div>
+            <div>
+                <h2>Telegram &mdash; Canal interno del equipo</h2>
+                <small>Alertas automaticas para el staff de la clinica</small>
+            </div>
+            <span class="badge badge-free">GRATIS</span>
+        </div>
+        <div class="section-body">
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">💰</div>
+                <div><strong>Coste total: 0 EUR/mes.</strong> Telegram no cobra por bots, mensajes ni grupos. Sin limites practicos para el volumen de una clinica.</div>
+            </div>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Desglose de costes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Coste</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bot de Telegram</td>
+                        <td class="free">GRATIS</td>
+                        <td>Se crea via @BotFather en 2 minutos</td>
+                    </tr>
+                    <tr>
+                        <td>Llamadas API</td>
+                        <td class="free">GRATIS</td>
+                        <td>Sin limites practicos (max 30 msg/seg)</td>
+                    </tr>
+                    <tr>
+                        <td>Grupo privado</td>
+                        <td class="free">GRATIS</td>
+                        <td>Hasta 200.000 miembros</td>
+                    </tr>
+                    <tr>
+                        <td>Envio de imagenes/docs</td>
+                        <td class="free">GRATIS</td>
+                        <td>Hasta 50MB por archivo</td>
+                    </tr>
+                    <tr>
+                        <td>Almacenamiento</td>
+                        <td class="free">GRATIS</td>
+                        <td>Telegram almacena todo en la nube</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>TOTAL MENSUAL</td>
+                        <td class="free">0 EUR</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Que notificaciones recibe el equipo</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Notificacion</th>
+                        <th>Cuando se envia</th>
+                        <th>Prioridad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>📸 Foto subida por paciente</td>
+                        <td>Cada vez que un paciente sube foto</td>
+                        <td>Normal</td>
+                    </tr>
+                    <tr>
+                        <td>🔴 Foto con riesgo detectado</td>
+                        <td>IA detecta riesgo alto en foto</td>
+                        <td style="color:var(--danger)">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>⚠️ Escalado de chat</td>
+                        <td>IA escala conversacion a humano</td>
+                        <td style="color:var(--danger)">ALTA</td>
+                    </tr>
+                    <tr>
+                        <td>📋 Plazo preoperatorio</td>
+                        <td>Paciente con cirugia en &lt;7 dias + pendientes</td>
+                        <td>Media</td>
+                    </tr>
+                    <tr>
+                        <td>📷 Fotos no enviadas</td>
+                        <td>Paciente no envio fotos dia 7/10</td>
+                        <td>Media</td>
+                    </tr>
+                    <tr>
+                        <td>🆕 Nuevo acceso paciente</td>
+                        <td>Paciente entra a la app por 1a vez</td>
+                        <td>Baja</td>
+                    </tr>
+                    <tr>
+                        <td>📊 Resumen diario</td>
+                        <td>Cada dia a las 08:00</td>
+                        <td>Info</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Ejemplo de mensaje</h3>
+            <div class="msg-label">Mensaje en el canal de Telegram</div>
+            <div class="msg-preview msg-preview-tg">
+                📊 <b>RESUMEN DIARIO CAPILEX</b><br>
+                ─────────────────────────<br><br>
+                👥 Pacientes activos: <b>12</b><br><br>
+                🗓 <b>Proximas cirugias:</b><br>
+                &nbsp;&nbsp;• Jose Salamanca — en 3 dias<br>
+                &nbsp;&nbsp;• Maria Lopez — en 6 dias<br><br>
+                🏥 <b>Postop critico (dia 1-7):</b><br>
+                &nbsp;&nbsp;• Carlos Ruiz — dia 2<br>
+                &nbsp;&nbsp;• Ana Garcia — dia 5<br><br>
+                📷 <b>Fotos pendientes:</b><br>
+                &nbsp;&nbsp;• Pedro Martin — dia 7<br><br>
+                ─────────────────────────<br>
+                <i>Generado por Capilex App</i>
+            </div>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Setup (10 minutos)</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div><strong>Crear bot:</strong> Abrir Telegram, buscar @BotFather, enviar /newbot, nombre: "Capilex Alertas"</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div><strong>Copiar token:</strong> BotFather devuelve un token tipo 123456:ABC-DEF... → guardar</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div><strong>Crear grupo privado:</strong> Nuevo grupo en Telegram → anadir el bot como administrador</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div><strong>Obtener chat_id:</strong> Enviar mensaje al grupo → visitar api.telegram.org/bot&lt;TOKEN&gt;/getUpdates → copiar el chat_id negativo</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div><strong>Configurar .env:</strong> TELEGRAM_BOT_TOKEN y TELEGRAM_CLINIC_CHAT_ID en la app</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Comunicacion con pacientes</span></div>
+    <!-- ============================================ -->
+
+    <!-- WHATSAPP -->
+    <div class="section" id="whatsapp">
+        <div class="section-header">
+            <div class="icon">💬</div>
+            <div>
+                <h2>WhatsApp Business API &mdash; Canal paciente</h2>
+                <small>Recordatorios y seguimiento directo con el paciente</small>
+            </div>
+            <span class="badge badge-paid">BAJO COSTE</span>
+        </div>
+        <div class="section-body">
+
+            <div class="highlight highlight-blue">
+                <div class="highlight-icon">ℹ️</div>
+                <div><strong>Modelo de precios de Meta:</strong> WhatsApp cobra por "conversacion" (ventana de 24h), no por mensaje individual. Si el paciente escribe primero, la respuesta es GRATIS durante 24h.</div>
+            </div>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Precio por tipo de conversacion (Espana)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Coste</th>
+                        <th>Quien inicia</th>
+                        <th>Uso en Capilex</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Utility (recordatorios)</td>
+                        <td class="price">~0.03 EUR</td>
+                        <td>La clinica</td>
+                        <td>Medicacion, cuidados, plazos</td>
+                    </tr>
+                    <tr>
+                        <td>Authentication (codigos)</td>
+                        <td class="price">~0.02 EUR</td>
+                        <td>La clinica</td>
+                        <td>Envio codigo de acceso</td>
+                    </tr>
+                    <tr>
+                        <td>Marketing (promos)</td>
+                        <td class="price">~0.06 EUR</td>
+                        <td>La clinica</td>
+                        <td>No necesario</td>
+                    </tr>
+                    <tr>
+                        <td>Service (respuestas)</td>
+                        <td class="free">GRATIS</td>
+                        <td>El paciente</td>
+                        <td>Cuando el paciente escribe primero</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Coste por paciente (ciclo completo 18 meses)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fase</th>
+                        <th>Mensajes</th>
+                        <th>Tipo</th>
+                        <th>Coste unit.</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pre-operatorio (15, 7, 2, 1 dia antes)</td>
+                        <td>4</td>
+                        <td>Utility</td>
+                        <td>0.03 EUR</td>
+                        <td class="price">0.12 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Dia de la cirugia</td>
+                        <td>1</td>
+                        <td>Utility</td>
+                        <td>0.03 EUR</td>
+                        <td class="price">0.03 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Post-op dias 1-15 (diario)</td>
+                        <td>15</td>
+                        <td>Utility</td>
+                        <td>0.03 EUR</td>
+                        <td class="price">0.45 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Post-op dias 16-30 (semanal)</td>
+                        <td>4</td>
+                        <td>Utility</td>
+                        <td>0.03 EUR</td>
+                        <td class="price">0.12 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Meses 2-18 (mensual)</td>
+                        <td>10</td>
+                        <td>Utility</td>
+                        <td>0.03 EUR</td>
+                        <td class="price">0.30 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Recordatorios fotos (dia 7, 10, 120, 180, 365)</td>
+                        <td>5</td>
+                        <td>Utility</td>
+                        <td>0.03 EUR</td>
+                        <td class="price">0.15 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Respuestas del paciente</td>
+                        <td>~10</td>
+                        <td>Service</td>
+                        <td>GRATIS</td>
+                        <td class="free">0.00 EUR</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>TOTAL POR PACIENTE</td>
+                        <td>~49</td>
+                        <td></td>
+                        <td></td>
+                        <td class="price">~1.17 EUR</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Coste mensual segun volumen de la clinica</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pacientes/mes</th>
+                        <th>WhatsApp</th>
+                        <th>Plataforma (Twilio)</th>
+                        <th>Total/mes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>5 pacientes</td>
+                        <td>5.85 EUR</td>
+                        <td class="free">0 EUR (free tier)</td>
+                        <td class="price">~6 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>10 pacientes</td>
+                        <td>11.70 EUR</td>
+                        <td class="free">0 EUR</td>
+                        <td class="price">~12 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>20 pacientes</td>
+                        <td>23.40 EUR</td>
+                        <td class="free">0 EUR</td>
+                        <td class="price">~24 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>50 pacientes</td>
+                        <td>58.50 EUR</td>
+                        <td>15 EUR</td>
+                        <td class="price">~74 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>100 pacientes</td>
+                        <td>117.00 EUR</td>
+                        <td>15 EUR</td>
+                        <td class="price">~132 EUR</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Ejemplo de mensaje al paciente</h3>
+            <div class="msg-label">WhatsApp &mdash; Recordatorio dia 7</div>
+            <div class="msg-preview">
+                Buenos dias Jose 📸<br>
+                Hoy es <b>dia 7 postoperatorio</b>.<br><br>
+                Es momento de enviar tus fotos de seguimiento:<br>
+                📷 Zona receptora (frente y arriba)<br>
+                📷 Zona donante<br><br>
+                Sube las fotos en la app y nuestro equipo las revisara.<br><br>
+                👉 Subir fotos: app.capilexmadrid.es
+            </div>
+
+            <div class="msg-label" style="margin-top:16px">WhatsApp &mdash; Recordatorio medicacion</div>
+            <div class="msg-preview">
+                💊 <b>Recordatorio Capilex</b><br><br>
+                Hora de tu Ciprofloxacino (500mg) con la cena.<br><br>
+                Dia 3 de 7 del antibiotico.<br>
+                <i style="color:#888">¿Algun problema? Responde a este mensaje.</i>
+            </div>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Requisitos para activar WhatsApp</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div><strong>Cuenta Meta Business verificada</strong> &mdash; La clinica verifica su negocio con documentacion (2-7 dias)</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div><strong>Numero de telefono dedicado</strong> &mdash; Un numero que no use WhatsApp personal (puede ser fijo de la clinica)</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div><strong>Cuenta en Twilio</strong> (proveedor recomendado) &mdash; Configuracion tecnica para enviar via API (1 dia)</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div><strong>Plantillas aprobadas por Meta</strong> &mdash; Cada mensaje que inicia la clinica debe ser una plantilla pre-aprobada (3-5 dias)</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div><strong>Consentimiento del paciente</strong> &mdash; Opt-in obligatorio (RGPD + politica Meta). Se recoge al acceder a la app.</div>
+                </div>
+            </div>
+
+            <div class="highlight highlight-gold" style="margin-top:16px">
+                <div class="highlight-icon">⏱️</div>
+                <div><strong>Tiempo total de setup: 2-3 semanas</strong> (la mayor parte es esperar verificacion de Meta y aprobacion de plantillas).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Comparativa</span></div>
+    <!-- ============================================ -->
+
+    <div class="section" id="comparativa">
+        <div class="section-header">
+            <div class="icon">⚖️</div>
+            <div>
+                <h2>Telegram vs WhatsApp</h2>
+                <small>Dos canales, dos propositos diferentes</small>
+            </div>
+        </div>
+        <div class="section-body">
+
+            <div class="compare-grid">
+                <div class="compare-card">
+                    <h4>Telegram</h4>
+                    <div class="big-number green">0 EUR</div>
+                    <p>Setup: 10 minutos<br>Para: equipo clinico</p>
+                </div>
+                <div class="compare-card">
+                    <h4>WhatsApp</h4>
+                    <div class="big-number blue">~1.17 EUR</div>
+                    <p>Setup: 2-3 semanas<br>Para: paciente</p>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspecto</th>
+                        <th>✈️ Telegram</th>
+                        <th>💬 WhatsApp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Destinatario</td>
+                        <td>Equipo clinico</td>
+                        <td>Paciente</td>
+                    </tr>
+                    <tr>
+                        <td>Coste mensual</td>
+                        <td class="free">0 EUR</td>
+                        <td class="price">6-132 EUR segun volumen</td>
+                    </tr>
+                    <tr>
+                        <td>Coste por paciente</td>
+                        <td class="free">0 EUR</td>
+                        <td class="price">~1.17 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>Tiempo de setup</td>
+                        <td>10 minutos</td>
+                        <td>2-3 semanas</td>
+                    </tr>
+                    <tr>
+                        <td>Verificacion</td>
+                        <td>No necesaria</td>
+                        <td>Meta Business verificado</td>
+                    </tr>
+                    <tr>
+                        <td>Aprobacion mensajes</td>
+                        <td>No</td>
+                        <td>Si (plantillas Meta)</td>
+                    </tr>
+                    <tr>
+                        <td>Bidireccional</td>
+                        <td>Solo lectura (alertas)</td>
+                        <td>Si (paciente responde)</td>
+                    </tr>
+                    <tr>
+                        <td>Envio de fotos</td>
+                        <td>Si (50MB)</td>
+                        <td>Si (16MB)</td>
+                    </tr>
+                    <tr>
+                        <td>Tasa de apertura</td>
+                        <td>~80%</td>
+                        <td>~98%</td>
+                    </tr>
+                    <tr>
+                        <td>Complejidad tecnica</td>
+                        <td>Baja (HTTP simple)</td>
+                        <td>Media (SDK + webhooks)</td>
+                    </tr>
+                    <tr>
+                        <td>Limite mensajes</td>
+                        <td>Ilimitado</td>
+                        <td>Pago por conversacion</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Coste total de la aplicacion</span></div>
+    <!-- ============================================ -->
+
+    <div class="section" id="coste-total">
+        <div class="section-header">
+            <div class="icon">📊</div>
+            <div>
+                <h2>Coste total mensual de la app Capilex</h2>
+                <small>Todos los servicios incluidos</small>
+            </div>
+        </div>
+        <div class="section-body">
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Escenario: 10-20 pacientes activos/mes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Coste/mes</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Vercel (hosting)</td>
+                        <td class="free">0 EUR</td>
+                        <td>Free tier suficiente</td>
+                    </tr>
+                    <tr>
+                        <td>Supabase (DB + storage)</td>
+                        <td class="free">0 EUR</td>
+                        <td>Free tier: 500MB DB, 1GB storage</td>
+                    </tr>
+                    <tr>
+                        <td>OpenAI GPT-4o (chat + fotos)</td>
+                        <td class="price">5-20 EUR</td>
+                        <td>~0.50 EUR/paciente (20-50 llamadas)</td>
+                    </tr>
+                    <tr>
+                        <td>Telegram Bot</td>
+                        <td class="free">0 EUR</td>
+                        <td>Gratuito</td>
+                    </tr>
+                    <tr>
+                        <td>WhatsApp (opcional)</td>
+                        <td class="price">6-24 EUR</td>
+                        <td>~1.17 EUR/paciente</td>
+                    </tr>
+                    <tr>
+                        <td>Dominio (subdominio)</td>
+                        <td class="price">~1 EUR</td>
+                        <td>app.capilexmadrid.es</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td>TOTAL</td>
+                        <td class="price">6-45 EUR/mes</td>
+                        <td>Para 10-20 pacientes</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 style="color:var(--gold); font-size:0.85em; font-weight:400; letter-spacing:1px; margin:16px 0 8px; text-transform:uppercase;">Escenarios de crecimiento</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Volumen</th>
+                        <th>Vercel</th>
+                        <th>Supabase</th>
+                        <th>OpenAI</th>
+                        <th>WhatsApp</th>
+                        <th>Total/mes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>10 pac/mes</td>
+                        <td class="free">0 EUR</td>
+                        <td class="free">0 EUR</td>
+                        <td>5 EUR</td>
+                        <td>12 EUR</td>
+                        <td class="price">~17 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>20 pac/mes</td>
+                        <td class="free">0 EUR</td>
+                        <td class="free">0 EUR</td>
+                        <td>10 EUR</td>
+                        <td>24 EUR</td>
+                        <td class="price">~34 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>50 pac/mes</td>
+                        <td>20 EUR</td>
+                        <td>25 EUR</td>
+                        <td>25 EUR</td>
+                        <td>74 EUR</td>
+                        <td class="price">~144 EUR</td>
+                    </tr>
+                    <tr>
+                        <td>100 pac/mes</td>
+                        <td>20 EUR</td>
+                        <td>25 EUR</td>
+                        <td>50 EUR</td>
+                        <td>132 EUR</td>
+                        <td class="price">~227 EUR</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight highlight-gold" style="margin-top:16px">
+                <div class="highlight-icon">💡</div>
+                <div><strong>Coste por paciente: ~1-2 EUR</strong> (incluyendo IA, hosting, WhatsApp). Marginal comparado con el precio de un trasplante capilar (3.000-6.000 EUR). Representa un <strong>0.03%</strong> del coste de la intervencion.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <div class="divider"><span>Recomendacion</span></div>
+    <!-- ============================================ -->
+
+    <div class="section" id="recomendacion">
+        <div class="section-header">
+            <div class="icon">🎯</div>
+            <div>
+                <h2>Plan de implementacion recomendado</h2>
+                <small>Estrategia por fases</small>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="steps">
+                <div class="step" style="border-left-color: var(--success)">
+                    <div class="step-num" style="background: var(--success-bg); color: var(--success)">1</div>
+                    <div>
+                        <strong>Fase inmediata: TELEGRAM</strong><br>
+                        <span style="color:var(--text-muted); font-size:0.85em">
+                            Coste: 0 EUR &bull; Setup: 10 minutos &bull; Ya esta desarrollado<br>
+                            El equipo clinico empieza a recibir alertas instantaneas. Se puede activar hoy mismo.
+                        </span>
+                    </div>
+                </div>
+                <div class="step" style="border-left-color: var(--blue)">
+                    <div class="step-num" style="background: var(--blue-bg); color: var(--blue)">2</div>
+                    <div>
+                        <strong>Fase siguiente: WHATSAPP</strong><br>
+                        <span style="color:var(--text-muted); font-size:0.85em">
+                            Coste: ~12-24 EUR/mes &bull; Setup: 2-3 semanas<br>
+                            Los pacientes reciben recordatorios donde ya estan. Requiere verificacion Meta y aprobacion de plantillas.
+                        </span>
+                    </div>
+                </div>
+                <div class="step" style="border-left-color: var(--gold)">
+                    <div class="step-num">3</div>
+                    <div>
+                        <strong>Fase combinada: APP + TELEGRAM + WHATSAPP</strong><br>
+                        <span style="color:var(--text-muted); font-size:0.85em">
+                            La app es la experiencia completa (timeline, fotos, chat IA).<br>
+                            Telegram alerta al staff internamente.<br>
+                            WhatsApp recuerda al paciente que use la app.<br>
+                            Coste total estimado: <b>20-45 EUR/mes</b> para 10-20 pacientes.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Capilex Madrid &mdash; Modelo de costes de comunicacion</p>
+        <small>Precios estimados a marzo 2026. Sujetos a cambios por Meta y proveedores.</small>
+    </div>
+
+</div>
+
+</body>
+</html>

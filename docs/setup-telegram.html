@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Telegram Bot - Capilex Madrid</title>
+    <style>
+        :root {
+            --gold: rgb(231, 184, 97);
+            --gold-light: rgba(231, 184, 97, 0.15);
+            --gold-subtle: rgba(231, 184, 97, 0.08);
+            --gold-border: rgba(231, 184, 97, 0.25);
+            --gold-dim: rgba(231, 184, 97, 0.5);
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --text: #d4d4d4;
+            --text-muted: #888888;
+            --white: #ffffff;
+            --success: #27ae60;
+            --success-bg: rgba(39, 174, 96, 0.1);
+            --success-border: rgba(39, 174, 96, 0.25);
+            --blue: #2980b9;
+            --blue-bg: rgba(41, 128, 185, 0.1);
+            --blue-border: rgba(41, 128, 185, 0.25);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+        .header { background: #000; padding: 35px 20px 28px; text-align: center; border-bottom: 2px solid var(--gold); }
+        .header h1 { font-size: 1.5em; color: var(--gold); letter-spacing: 3px; font-weight: 300; text-transform: uppercase; margin-bottom: 4px; }
+        .header p { color: var(--text-muted); font-size: 0.88em; letter-spacing: 1px; }
+        .container { max-width: 760px; margin: 0 auto; padding: 20px 16px; }
+        .step-block { margin-bottom: 24px; border-radius: 8px; overflow: hidden; background: var(--bg-card); border: 1px solid #1a1a1a; }
+        .step-header { padding: 16px 20px; display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, #111, #0a0a0a); border-bottom: 1px solid var(--gold-border); }
+        .step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--gold-light); color: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 1em; font-weight: 600; flex-shrink: 0; }
+        .step-header h2 { font-size: 1.05em; color: var(--gold); font-weight: 400; }
+        .step-header small { color: var(--text-muted); display: block; font-size: 0.75em; }
+        .step-body { padding: 6px 20px 20px; }
+        .step-body p { margin: 8px 0; font-size: 0.9em; }
+        .code-block { background: #0d0d0d; border: 1px solid #222; border-radius: 6px; padding: 14px 16px; margin: 10px 0; font-family: 'Consolas', 'Courier New', monospace; font-size: 0.85em; overflow-x: auto; color: var(--gold); word-break: break-all; }
+        .code-block .comment { color: var(--text-muted); }
+        .code-block .url { color: var(--blue); }
+        .highlight { padding: 14px 18px; border-radius: 6px; margin: 10px 0; display: flex; align-items: flex-start; gap: 10px; font-size: 0.88em; }
+        .highlight-icon { font-size: 1.2em; flex-shrink: 0; }
+        .highlight-success { background: var(--success-bg); border: 1px solid var(--success-border); }
+        .highlight-success strong { color: var(--success); }
+        .highlight-gold { background: var(--gold-subtle); border: 1px solid var(--gold-border); }
+        .highlight-gold strong { color: var(--gold); }
+        .highlight-blue { background: var(--blue-bg); border: 1px solid var(--blue-border); }
+        .highlight-blue strong { color: var(--blue); }
+        .chat-bubble { background: #1a2a3a; border-radius: 0 12px 12px 12px; padding: 10px 14px; margin: 8px 0; max-width: 90%; font-size: 0.88em; line-height: 1.5; }
+        .chat-bubble.user { background: #1a3a2a; border-radius: 12px 0 12px 12px; margin-left: auto; text-align: right; }
+        .chat-label { font-size: 0.68em; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .img-placeholder { background: #1a1a1a; border: 1px dashed #333; border-radius: 6px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.82em; margin: 8px 0; }
+        .checklist { list-style: none; padding: 0; margin: 10px 0; }
+        .checklist li { padding: 6px 0; padding-left: 28px; position: relative; font-size: 0.88em; }
+        .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--gold); font-size: 1.1em; }
+        .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.78em; margin-top: 20px; }
+        @media (max-width: 600px) { .header h1 { font-size: 1.2em; } .code-block { font-size: 0.78em; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Setup Bot Telegram</h1>
+    <p>Canal de alertas del equipo clinico &mdash; Capilex Madrid</p>
+</div>
+
+<div class="container">
+
+    <div class="highlight highlight-gold">
+        <div class="highlight-icon">⏱️</div>
+        <div><strong>Tiempo estimado: 10 minutos.</strong> Solo necesitas Telegram instalado en tu movil o PC. Coste: 0 EUR.</div>
+    </div>
+
+    <!-- PASO 1 -->
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">1</div>
+            <div>
+                <h2>Crear el bot con @BotFather</h2>
+                <small>El "padre" de todos los bots de Telegram</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Abre Telegram y busca <strong>@BotFather</strong> (tiene un tick azul de verificado).</p>
+            <p>Envia estos mensajes en orden:</p>
+
+            <div class="chat-label">Tu</div>
+            <div class="chat-bubble user">/newbot</div>
+
+            <div class="chat-label">BotFather</div>
+            <div class="chat-bubble">Alright, a new bot. How are we going to call it? Please choose a name for your bot.</div>
+
+            <div class="chat-label">Tu</div>
+            <div class="chat-bubble user">Capilex Alertas</div>
+
+            <div class="chat-label">BotFather</div>
+            <div class="chat-bubble">Good. Now let's choose a username for your bot. It must end in 'bot'.</div>
+
+            <div class="chat-label">Tu</div>
+            <div class="chat-bubble user">CapilexAlertasBot</div>
+
+            <div class="chat-label">BotFather</div>
+            <div class="chat-bubble">Done! Congratulations on your new bot.<br><br>Use this token to access the HTTP API:<br><b style="color:var(--gold)">7123456789:AAH1234abcd5678efgh-XXXXXXXXXXX</b><br><br>Keep your token secure and store it safely.</div>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">📋</div>
+                <div><strong>Copia ese token</strong> (la linea larga tipo <code>7123456789:AAH...</code>). Lo necesitaras en el paso 4.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">2</div>
+            <div>
+                <h2>Crear el grupo privado del equipo</h2>
+                <small>Donde llegaran todas las alertas</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>En Telegram:</p>
+            <ul class="checklist">
+                <li>Pulsa el icono de <strong>nuevo mensaje</strong> (lapiz)</li>
+                <li>Selecciona <strong>"Nuevo grupo"</strong></li>
+                <li>Nombre del grupo: <strong>"Capilex Staff - Alertas"</strong></li>
+                <li>Anade a los miembros del equipo clinico que deban recibir alertas</li>
+                <li>Anade al bot: busca <strong>@CapilexAlertasBot</strong> y anadelo al grupo</li>
+                <li>Crea el grupo</li>
+            </ul>
+
+            <div class="highlight highlight-gold">
+                <div class="highlight-icon">👑</div>
+                <div><strong>Haz admin al bot:</strong> Ve a info del grupo → Administradores → Anadir administrador → selecciona el bot. Esto permite que envie mensajes sin restricciones.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">3</div>
+            <div>
+                <h2>Obtener el chat_id del grupo</h2>
+                <small>El identificador unico del grupo</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p><strong>3a.</strong> Envia cualquier mensaje al grupo (por ejemplo: "Hola equipo").</p>
+            <p><strong>3b.</strong> Abre esta URL en tu navegador (sustituye TOKEN por tu token del paso 1):</p>
+
+            <div class="code-block">
+                <span class="url">https://api.telegram.org/bot</span><span style="color:var(--gold)">TU_TOKEN_AQUI</span><span class="url">/getUpdates</span>
+            </div>
+
+            <p><strong>3c.</strong> Veras un JSON. Busca el campo <code>"chat"</code> → <code>"id"</code>. Sera un <strong>numero negativo</strong> como:</p>
+
+            <div class="code-block">
+                "chat": {<br>
+                &nbsp;&nbsp;"id": <span style="color:var(--success)">-1001234567890</span>,<br>
+                &nbsp;&nbsp;"title": "Capilex Staff - Alertas",<br>
+                &nbsp;&nbsp;"type": "supergroup"<br>
+                }
+            </div>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">📋</div>
+                <div><strong>Copia el numero negativo completo</strong> (incluyendo el signo menos). Ese es tu <code>TELEGRAM_CLINIC_CHAT_ID</code>.</div>
+            </div>
+
+            <div class="highlight highlight-blue">
+                <div class="highlight-icon">💡</div>
+                <div><strong>Tip:</strong> Si no ves nada en getUpdates, envia otro mensaje al grupo y vuelve a cargar la URL. Los updates caducan rapido.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">4</div>
+            <div>
+                <h2>Configurar las variables de entorno</h2>
+                <small>En el fichero .env.local de la app</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Abre el fichero <code>.env.local</code> en la raiz del proyecto y rellena:</p>
+
+            <div class="code-block">
+                <span class="comment"># Telegram Bot (canal privado de la clinica)</span><br>
+                TELEGRAM_BOT_TOKEN=<span style="color:var(--success)">7123456789:AAH1234abcd5678efgh-XXXXXXXXXXX</span><br>
+                TELEGRAM_CLINIC_CHAT_ID=<span style="color:var(--success)">-1001234567890</span>
+            </div>
+
+            <p>Guarda el fichero y reinicia el servidor de desarrollo (<code>npm run dev</code>).</p>
+        </div>
+    </div>
+
+    <!-- PASO 5 -->
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">5</div>
+            <div>
+                <h2>Probar que funciona</h2>
+                <small>Enviar un mensaje de prueba</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Con el servidor arrancado, abre en el navegador:</p>
+
+            <div class="code-block">
+                <span class="url">http://localhost:3000/api/telegram/test</span>
+            </div>
+
+            <p>Deberia aparecer un mensaje de prueba en tu grupo de Telegram en 1-2 segundos.</p>
+
+            <div class="highlight highlight-success">
+                <div class="highlight-icon">✅</div>
+                <div><strong>Si ves el mensaje en Telegram, todo esta listo!</strong> A partir de ahora el equipo recibira alertas automaticas cuando los pacientes suban fotos, el chat IA escale, o haya plazos pendientes.</div>
+            </div>
+
+            <p>Si NO ves el mensaje, verifica:</p>
+            <ul class="checklist">
+                <li>El token es correcto (sin espacios extra)</li>
+                <li>El chat_id incluye el signo menos</li>
+                <li>El bot es administrador del grupo</li>
+                <li>Has reiniciado el servidor tras cambiar .env.local</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- PASO 6 -->
+    <div class="step-block">
+        <div class="step-header">
+            <div class="step-num">6</div>
+            <div>
+                <h2>Personalizar el bot (opcional)</h2>
+                <small>Nombre, foto y descripcion</small>
+            </div>
+        </div>
+        <div class="step-body">
+            <p>Vuelve a @BotFather y envia estos comandos para personalizar:</p>
+
+            <div class="chat-label">Cambiar foto de perfil</div>
+            <div class="chat-bubble user">/setuserpic</div>
+            <p style="font-size:0.82em; color:var(--text-muted)">Selecciona @CapilexAlertasBot y sube el logo de Capilex (logo-capilex.png)</p>
+
+            <div class="chat-label" style="margin-top:12px">Cambiar descripcion</div>
+            <div class="chat-bubble user">/setdescription</div>
+            <p style="font-size:0.82em; color:var(--text-muted)">Selecciona el bot y escribe: "Bot de alertas internas de Clinica Capilex Madrid. Sistema automatizado de seguimiento de pacientes."</p>
+
+            <div class="chat-label" style="margin-top:12px">Cambiar info</div>
+            <div class="chat-bubble user">/setabouttext</div>
+            <p style="font-size:0.82em; color:var(--text-muted)">Escribe: "Canal de alertas del equipo clinico Capilex"</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Capilex Madrid &mdash; Guia de configuracion Telegram<br>
+        Una vez configurado, las alertas se envian automaticamente. No requiere mantenimiento.
+    </div>
+
+</div>
+</body>
+</html>
