@@ -43,9 +43,9 @@ export default function PatientHeader() {
             href="/emergency"
             className="w-8 h-8 rounded-full border border-[#333] flex items-center justify-center
               text-text-muted hover:border-danger-border hover:text-danger transition-colors"
-            aria-label="Contacto de emergencia"
+            aria-label="Ayuda"
           >
-            <span className="text-sm">🆘</span>
+            <span className="text-[10px]">Ayuda</span>
           </Link>
         </div>
       </div>
