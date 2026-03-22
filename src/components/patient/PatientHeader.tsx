@@ -12,7 +12,7 @@ export default function PatientHeader() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/login");
+    router.replace("/");
   };
 
   if (!intervention) return null;
