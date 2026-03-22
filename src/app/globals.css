@@ -31,6 +31,25 @@
   --font-sans: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ====== LIGHT THEME OVERRIDES ====== */
+
+:root[data-theme="light"] {
+  --color-gold: rgb(180, 130, 50);
+  --color-gold-light: rgba(180, 130, 50, 0.12);
+  --color-gold-subtle: rgba(180, 130, 50, 0.06);
+  --color-gold-border: rgba(180, 130, 50, 0.25);
+  --color-gold-dim: rgba(180, 130, 50, 0.5);
+
+  --color-black: #ffffff;
+  --color-bg: #f5f5f0;
+  --color-bg-card: #ffffff;
+  --color-bg-card-alt: #fafaf8;
+
+  --color-text: #333333;
+  --color-text-muted: #777777;
+  --color-text-white: #111111;
+}
+
 /* ====== BASE STYLES ====== */
 
 body {
@@ -38,6 +57,7 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans);
   line-height: 1.7;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 /* ====== SCROLLBAR (dark theme) ====== */
@@ -104,4 +124,52 @@ body {
   width: 14px;
   height: 14px;
   box-shadow: 0 0 12px rgba(231, 184, 97, 0.6);
+}
+
+/* ====== LIGHT THEME SPECIFIC ====== */
+
+:root[data-theme="light"] .logo-dark {
+  filter: none;
+}
+
+:root[data-theme="light"] .card {
+  border-color: #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .card-header {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f0 100%);
+  border-bottom-color: var(--color-gold-border);
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+:root[data-theme="light"] .bg-black {
+  background-color: #ffffff !important;
+}
+
+:root[data-theme="light"] .border-\[\#1a1a1a\] {
+  border-color: #e0e0e0 !important;
+}
+
+:root[data-theme="light"] .border-\[\#333\] {
+  border-color: #ccc !important;
+}
+
+:root[data-theme="light"] .bg-\[\#111\]:hover {
+  background-color: #f0f0f0 !important;
+}
+
+:root[data-theme="light"] .text-text-white {
+  color: #111111;
 }

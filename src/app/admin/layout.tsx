@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useTheme } from "@/lib/theme/ThemeProvider";
 
 const NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
@@ -13,6 +14,7 @@ const NAV_ITEMS = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { theme, toggle } = useTheme();
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
@@ -46,6 +48,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
         <div className="p-4 border-t border-[#1a1a1a] space-y-2">
+          <button
+            onClick={toggle}
+            className="text-text-muted text-xs hover:text-gold transition-colors flex items-center gap-2"
+          >
+            {theme === "dark" ? "☀️ Modo claro" : "🌙 Modo oscuro"}
+          </button>
           <Link href="/" className="text-text-muted text-xs hover:text-gold transition-colors block">
             ← Volver a la app
           </Link>
@@ -53,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             onClick={async () => {
               await fetch("/api/auth/logout", { method: "POST" });
               localStorage.removeItem("staff_user");
-              window.location.href = "/admin/login";
+              window.location.href = "/";
             }}
             className="text-text-muted text-xs hover:text-danger transition-colors"
           >
@@ -65,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-black border-b border-[#1a1a1a] px-4 py-2 flex items-center justify-between">
         <Image src="/logo-capilex.png" alt="Capilex" width={80} height={43} className="logo-dark" />
-        <div className="flex gap-1">
+        <div className="flex gap-1 items-center">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.href}
@@ -75,6 +83,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {item.icon}
             </Link>
           ))}
+          <button
+            onClick={async () => {
+              await fetch("/api/auth/logout", { method: "POST" });
+              localStorage.removeItem("staff_user");
+              window.location.href = "/";
+            }}
+            className="p-2 rounded text-text-muted hover:text-danger transition-colors ml-1"
+            aria-label="Cerrar sesion"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
         </div>
       </div>
 
