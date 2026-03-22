@@ -36,13 +36,18 @@ async function handlePaciente(args: string, chatId: number, token: string) {
     return;
   }
 
-  // Search by name (first_name or last_name)
-  const { data: patients, error } = await supabase
+  // Search by name — split words to match across first_name and last_name
+  const words = searchTerm.split(/\s+/).filter(Boolean);
+  let query = supabase
     .from("cap_intervention_timeline")
     .select("*")
-    .eq("is_active", true)
-    .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%`)
-    .order("surgery_date", { ascending: false });
+    .eq("is_active", true);
+
+  for (const word of words) {
+    query = query.or(`first_name.ilike.%${word}%,last_name.ilike.%${word}%`);
+  }
+
+  const { data: patients, error } = await query.order("surgery_date", { ascending: false });
 
   if (error || !patients || patients.length === 0) {
     await reply(chatId, `No se encontro ningun paciente con "<b>${searchTerm}</b>".`, token);
