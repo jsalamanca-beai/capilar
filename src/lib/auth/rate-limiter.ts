@@ -1,6 +1,10 @@
+// NOTE: This in-memory rate limiter resets on each Vercel serverless cold start.
+// It provides basic protection per-instance but is not a hard limit.
+// For stricter rate limiting, use Vercel KV or Upstash Redis.
+
 const attempts = new Map<string, { count: number; resetAt: number }>();
 
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = 10;
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
 export function checkRateLimit(key: string): {

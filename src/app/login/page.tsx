@@ -20,9 +20,48 @@ function LoginForm() {
   const [code, setCode] = useState(["", "", "", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const submittingRef = useRef(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const handleSubmit = async (codeStr?: string) => {
+    const fullCode = codeStr || code.join("");
+    if (fullCode.length !== 8) {
+      setError("Introduce el codigo completo de 8 caracteres.");
+      return;
+    }
+
+    // Prevent duplicate submissions
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/auth/validate-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ code: fullCode }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        // Use replace to avoid back-button returning to login
+        router.replace("/dashboard");
+      } else {
+        setError(data.error || "Error al validar el codigo.");
+        setCode(["", "", "", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+      }
+    } catch {
+      setError("Error de conexion. Comprueba tu internet e intentalo de nuevo.");
+    } finally {
+      setLoading(false);
+      submittingRef.current = false;
+    }
+  };
 
   // Auto-fill from ?code= URL parameter
   useEffect(() => {
@@ -74,37 +113,6 @@ function LoginForm() {
       handleSubmit(pasted);
     } else {
       inputRefs.current[pasted.length]?.focus();
-    }
-  };
-
-  const handleSubmit = async (codeStr?: string) => {
-    const fullCode = codeStr || code.join("");
-    if (fullCode.length !== 8) {
-      setError("Introduce el codigo completo de 8 caracteres.");
-      return;
-    }
-    setLoading(true);
-    setError("");
-
-    try {
-      const res = await fetch("/api/auth/validate-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: fullCode }),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        router.push("/dashboard");
-      } else {
-        setError(data.error || "Error al validar el codigo.");
-        setCode(["", "", "", "", "", "", "", ""]);
-        inputRefs.current[0]?.focus();
-      }
-    } catch (err) {
-      setError(`Error de conexion: ${err instanceof Error ? err.message : "Intentalo de nuevo."}`);
-    } finally {
-      setLoading(false);
     }
   };
 
