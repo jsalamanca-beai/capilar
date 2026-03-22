@@ -42,6 +42,11 @@ Digitaliza todo el proceso pre y postoperatorio: timeline interactivo, checklist
 
 ### Integraciones
 - **Telegram Bot** — 6 tipos de alerta (foto subida, escalado, plazos pre-op, inactividad, primer acceso, resumen diario)
+- **Telegram Webhook** — Comandos interactivos desde el grupo del equipo:
+  - `/paciente nombre` — Info detallada (dia postop, fotos, escalados, evaluacion IA)
+  - `/pacientes` — Lista de todos los pacientes activos
+  - `/ayuda` — Comandos disponibles
+- **Modo claro/oscuro** — Toggle persistente en header paciente y sidebar admin
 - **RGPD** — consentimientos, logs auditoria, solicitudes supresion datos
 
 ## Estructura del proyecto
@@ -183,6 +188,46 @@ Toda la documentacion esta en `/docs/` como ficheros HTML autocontenidos con est
 - **32 casos de test** documentados
 - **8 documentos** HTML de referencia
 - **Puerto local:** 3043
+
+## Areas de mejora futuras
+
+### Prioridad Alta
+| Area | Descripcion | Impacto |
+|---|---|---|
+| **Service Role Key** | El `.env.local` usa la anon key como service_role. Obtener la key real del servidor Supabase (self-hosted) o crear Storage Policies adecuadas | Seguridad |
+| **Tests automatizados** | No hay tests unitarios ni e2e. Implementar Jest + Playwright para flujos criticos (login, upload foto, chat) | Calidad |
+| **Push notifications** | Notificaciones nativas al movil para recordatorios de medicacion y tareas del dia | Engagement paciente |
+| **PWA / App instalable** | Manifest + service worker para instalar como app nativa. Acceso offline al checklist y medicacion | UX mobile |
+| **Rate limiter persistente** | El rate limiter actual es in-memory y se pierde en cada cold start de Vercel. Migrar a Upstash Redis | Seguridad |
+
+### Prioridad Media
+| Area | Descripcion | Impacto |
+|---|---|---|
+| **Comparativa fotos** | Vista lado a lado (dia 7 vs dia 30 vs dia 90) para que el paciente vea su progreso | Motivacion paciente |
+| **Exportar informe PDF** | Generar informe con timeline, fotos y analisis IA para el paciente o para la clinica | Valor clinico |
+| **Notificaciones Telegram por paciente** | Avisar cuando un paciente especifico no entra en la app en X dias | Seguimiento |
+| **Dashboard analytics admin** | Graficas de uso, fotos subidas por dia, tiempo medio de revision, NPS | Gestion clinica |
+| **Multi-idioma** | Soporte ingles/frances para pacientes internacionales (i18n con next-intl) | Alcance |
+| **Citas / calendario** | Integrar con `cap_follow_up_appointments` para recordatorios y confirmaciones | Operativa |
+
+### Prioridad Baja (futuro)
+| Area | Descripcion | Impacto |
+|---|---|---|
+| **WhatsApp Business API** | Alternativa a Telegram para comunicacion con pacientes (mayor adopcion) | Canal paciente |
+| **Multi-clinica** | Soporte para varias clinicas con protocolos independientes (la DB ya lo soporta) | Escalabilidad |
+| **Video-consulta** | Teleconsulta integrada para seguimiento postoperatorio remoto | Servicio premium |
+| **ML propio** | Entrenar modelo propio con fotos historicas para no depender de GPT-4o Vision | Coste + privacidad |
+| **API publica** | Endpoint para que sistemas externos (CRM, ERP clinica) consulten datos | Integracion |
+
+### Deuda tecnica
+| Item | Detalle |
+|---|---|
+| Colores hardcoded | Varios componentes usan `bg-black`, `border-[#1a1a1a]`, `bg-[#111]` en vez de variables CSS. Refactorizar para que el tema claro/oscuro funcione al 100% |
+| Supabase RLS | Las Row Level Security policies no estan configuradas. Actualmente se accede con service role. Implementar RLS por paciente/clinica |
+| Error boundaries | No hay error boundaries en React. Un fallo en un componente rompe toda la pagina |
+| Loading states | Algunos componentes no muestran skeleton loaders. UX mejorable en conexiones lentas |
+| Accesibilidad (a11y) | Revisar contraste de colores (especialmente dorado sobre negro), labels en inputs, navegacion por teclado |
+| Monitoring | No hay logging estructurado ni monitoring (Sentry, LogRocket). Los errores se pierden en los logs de Vercel |
 
 ---
 
