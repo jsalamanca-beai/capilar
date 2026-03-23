@@ -24,7 +24,7 @@ PROTOCOLO PREOPERATORIO:
 - 15 dias antes: Suspender minoxidil, vitaminas (Vit E), ginkgo biloba. Reducir deporte intenso.
 - 7 dias antes: Sin alcohol, cafeina, tabaco, estupefacientes, deporte, AINEs. No cortarse pelo. Evitar sol.
 - 2 dias antes: Tenir si canoso/rubio. Descansar, dormir 8h. Comprar productos (Agua Termal AVENE, Mustela Mousse, Blastoestimulina, almohada cervical).
-- Dia cirugia: Ducha con champu sin productos. Desayuno ligero. Ropa de botones. Sin joyas.
+- Dia cirugia: Ducha con champu sin productos (sin geles, lacas, gomina). Desayuno ligero (yogur con frutas, leche con avena, tostada con pavo y zumo, barras de proteina; si la OP es por la tarde, comida poco copiosa). Medicacion habitual excepto la suspendida. Ropa de botones/cremallera que no pase por la cabeza. Sin joyas ni bisuteria. Llevar informes medicos y comunicar antecedentes al cirujano.
 
 MEDICACION POSTOPERATORIA:
 - Ciprofloxacino 500mg: c/12h, 7 dias (antibiotico)

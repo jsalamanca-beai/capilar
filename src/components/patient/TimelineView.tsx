@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { PHASES, type TimelinePhase } from "@/lib/timeline/compute-phase";
+import { PHASE_INSTRUCTIONS, type PhaseInstruction, type PhaseAlert } from "@/lib/content/phase-instructions";
 import type { ProtocolTaskItem } from "@/lib/types/database";
 
 interface TimelineViewProps {
@@ -45,6 +46,41 @@ function TaskItem({ task, isCurrent }: { task: ProtocolTaskItem; isCurrent: bool
   );
 }
 
+function InstructionItem({ item, isCurrent }: { item: PhaseInstruction; isCurrent: boolean }) {
+  return (
+    <div
+      className={`flex gap-2.5 items-start py-2 px-3 rounded-lg text-xs
+        ${item.danger ? "border-l-2 border-l-danger/40" : "border-l-2 border-l-gold-border"}
+        ${isCurrent ? "bg-black/20" : "bg-black/10"}`}
+    >
+      <span className="text-sm flex-shrink-0 mt-0.5">{item.icon}</span>
+      <div className="flex-1 min-w-0">
+        <p className={`font-medium ${isCurrent ? "text-text-white" : "text-text-muted"}`}>
+          {item.title}
+        </p>
+        {item.description && (
+          <p className="text-text-muted mt-0.5">{item.description}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AlertItem({ alert }: { alert: PhaseAlert }) {
+  const isDanger = alert.type === "danger";
+  return (
+    <div
+      className={`flex gap-2.5 items-start py-2.5 px-3 rounded-lg text-xs
+        ${isDanger ? "bg-danger-bg border border-danger-border" : "bg-gold-subtle border border-gold-border"}`}
+    >
+      <span className="text-sm flex-shrink-0 mt-0.5">{alert.icon}</span>
+      <p className={`flex-1 ${isDanger ? "text-danger" : "text-gold"}`}>
+        {alert.text}
+      </p>
+    </div>
+  );
+}
+
 function PhaseCard({
   phase,
   currentDay,
@@ -64,6 +100,7 @@ function PhaseCard({
   const isPast = currentDay > phase.dayEnd;
   const isFuture = currentDay < phase.dayStart;
 
+  const phaseContent = PHASE_INSTRUCTIONS[phase.key] || null;
   const restrictions = tasks.filter((t) => t.category === "restriction");
   const actions = tasks.filter((t) => t.category !== "restriction");
 
@@ -139,30 +176,64 @@ function PhaseCard({
               />
             </div>
           )}
-          {!isExpanded && tasks.length > 0 && (
+          {!isExpanded && (phaseContent || tasks.length > 0) && (
             <p className={`text-[10px] mt-1.5 ${isCurrent ? "text-gold-dim" : "text-text-muted"}`}>
-              {tasks.length} tarea{tasks.length !== 1 ? "s" : ""} — toca para ver
+              {phaseContent ? `${phaseContent.instructions.length} indicaciones` : ""}
+              {phaseContent && tasks.length > 0 ? " + " : ""}
+              {tasks.length > 0 ? `${tasks.length} tarea${tasks.length !== 1 ? "s" : ""}` : ""}
+              {" — toca para ver"}
             </p>
           )}
         </button>
 
-        {/* Expanded tasks */}
+        {/* Expanded content */}
         {isExpanded && (
           <div className="mt-2 space-y-1.5 animate-in slide-in-from-top-2">
+            {/* Phase instructions from guide */}
+            {phaseContent && (
+              <>
+                <div>
+                  <p className="text-gold text-[9px] uppercase tracking-wider mb-1 px-1">Indicaciones</p>
+                  <div className="space-y-1">
+                    {phaseContent.instructions.filter(i => !i.danger).map((item, idx) => (
+                      <InstructionItem key={`instr-${idx}`} item={item} isCurrent={isCurrent} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Danger instructions (restrictions from guide) */}
+                {phaseContent.instructions.some(i => i.danger) && (
+                  <div className="mt-3">
+                    <p className="text-danger text-[9px] uppercase tracking-wider mb-1 px-1">Prohibido</p>
+                    <div className="space-y-1">
+                      {phaseContent.instructions.filter(i => i.danger).map((item, idx) => (
+                        <InstructionItem key={`danger-${idx}`} item={item} isCurrent={isCurrent} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Alerts */}
+                {phaseContent.alerts && phaseContent.alerts.length > 0 && (
+                  <div className="mt-3 space-y-1.5">
+                    {phaseContent.alerts.map((alert, idx) => (
+                      <AlertItem key={`alert-${idx}`} alert={alert} />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* DB tasks (checklist) */}
             {loadingTasks ? (
               <div className="flex justify-center py-4">
                 <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
               </div>
-            ) : tasks.length === 0 ? (
-              <p className="text-text-muted text-xs text-center py-3">
-                {isFuture ? "Las tareas se mostraran cuando llegue esta fase." : "Sin tareas en esta fase."}
-              </p>
-            ) : (
+            ) : tasks.length > 0 && (
               <>
-                {/* Actions first */}
                 {actions.length > 0 && (
-                  <div>
-                    <p className="text-gold text-[9px] uppercase tracking-wider mb-1 px-1">Que hacer</p>
+                  <div className={phaseContent ? "mt-3" : ""}>
+                    <p className="text-gold text-[9px] uppercase tracking-wider mb-1 px-1">Tareas</p>
                     <div className="space-y-1">
                       {actions.map((task) => (
                         <TaskItem key={task.id} task={task} isCurrent={isCurrent} />
@@ -170,11 +241,9 @@ function PhaseCard({
                     </div>
                   </div>
                 )}
-
-                {/* Restrictions */}
                 {restrictions.length > 0 && (
-                  <div className={actions.length > 0 ? "mt-3" : ""}>
-                    <p className="text-danger text-[9px] uppercase tracking-wider mb-1 px-1">Prohibido / Restricciones</p>
+                  <div className={actions.length > 0 || phaseContent ? "mt-3" : ""}>
+                    <p className="text-danger text-[9px] uppercase tracking-wider mb-1 px-1">Restricciones</p>
                     <div className="space-y-1">
                       {restrictions.map((task) => (
                         <TaskItem key={task.id} task={task} isCurrent={isCurrent} />
@@ -183,6 +252,13 @@ function PhaseCard({
                   </div>
                 )}
               </>
+            )}
+
+            {/* No content at all */}
+            {!phaseContent && !loadingTasks && tasks.length === 0 && (
+              <p className="text-text-muted text-xs text-center py-3">
+                {isFuture ? "Las tareas se mostraran cuando llegue esta fase." : "Sin tareas en esta fase."}
+              </p>
             )}
           </div>
         )}
